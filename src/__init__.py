@@ -9,7 +9,6 @@ from .lyapunov import (
     analytical_lyapunov_logistic_fixed_point,
     lyapunov_logistic_spectrum,
     lyapunov_tent_spectrum,
-    analyze_convergence,
 )
 
 __all__ = [
@@ -20,5 +19,4 @@ __all__ = [
     "analytical_lyapunov_logistic_fixed_point",
     "lyapunov_logistic_spectrum",
     "lyapunov_tent_spectrum",
-    "analyze_convergence",
 ]

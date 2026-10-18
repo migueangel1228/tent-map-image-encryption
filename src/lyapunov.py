@@ -5,10 +5,9 @@ Proporciona:
 1. Cálculo numérico de lambda a lo largo de una órbita.
 2. Soluciones analíticas exactas para validación (Benchmark).
 3. Espectros de Lyapunov sobre rangos de parámetros.
-4. Análisis de convergencia de error numérico vs. número de iteraciones N.
 """
 
-from typing import Union, Dict, List
+from typing import Union
 import numpy as np
 from .maps import LogisticMap, TentMap
 
@@ -31,7 +30,7 @@ def calculate_lyapunov_exponent(
     x0 : float
         Condición inicial.
     n_transient : int
-        Iteraciones previas descartadas para eliminar el transitorio y alcanzar el atractor.
+        Iteraciones previas descartadas para alcanzar el atractor.
     n_iterations : int
         Número de iteraciones promediadas (N).
     eps : float
@@ -42,7 +41,6 @@ def calculate_lyapunov_exponent(
     float : Estimación numérica de \lambda.
     """
     x = float(x0)
-    # Evitar puntos fijos triviales o singularidades en la condición inicial
     if x in (0.0, 0.5, 1.0):
         x += 1e-5
 
@@ -156,32 +154,3 @@ def lyapunov_tent_spectrum(
             x[singular] += 1e-6
 
     return lyap_sum / n_iterations
-
-
-def analyze_convergence(
-    map_instance: Union[LogisticMap, TentMap],
-    exact_lambda: float,
-    x0: float = 0.31415,
-    n_values: List[int] = None,
-) -> Dict[str, np.ndarray]:
-    """
-    Analiza la convergencia del cálculo numérico de Lyapunov y su error absoluto
-    en función del número de iteraciones N.
-    """
-    if n_values is None:
-        n_values = [50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000]
-
-    n_arr = np.array(n_values, dtype=int)
-    estimates = []
-    errors = []
-
-    for n in n_arr:
-        val = calculate_lyapunov_exponent(map_instance, x0=x0, n_transient=500, n_iterations=int(n))
-        estimates.append(val)
-        errors.append(abs(val - exact_lambda))
-
-    return {
-        "n_values": n_arr,
-        "estimates": np.array(estimates),
-        "errors": np.array(errors),
-    }

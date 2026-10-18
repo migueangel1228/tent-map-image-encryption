@@ -3,7 +3,7 @@
 **Curso:** Computación Científica  
 **Autores:** Grupo de Proyecto  
 **Fecha:** Octubre 2026  
-**Tema:** Sistemas Dinámicos Discretos 1D, Exponente de Lyapunov y Análisis Numérico de Convergencia  
+**Tema:** Sistemas Dinámicos Discretos 1D y Cálculo Numérico del Exponente de Lyapunov  
 
 ---
 
@@ -11,15 +11,15 @@
 
 El presente trabajo aborda el cálculo analítico y la aproximación numérica del **Exponente de Lyapunov** ($\lambda$) en dos sistemas dinámicos discretos unidimensionales paradigmáticos: el **Mapa Logístico** ($x_{n+1} = r x_n (1 - x_n)$) y el **Modelo de Tienda (*Tent Map*)** ($x_{n+1} = p x_n$ para $x_n < 0.5$ y $p(1 - x_n)$ para $x_n \ge 0.5$). 
 
-El objetivo principal es formular y validar un marco algorítmico riguroso para la cuantificación de la dinámica caótica, analizando la tasa de convergencia asintótica del error numérico frente a soluciones analíticas exactas y el impacto de la aritmética de punto flotante de precisión finita (estándar IEEE 754). Mediante la acumulación temporal del logaritmo de la derivada a lo largo de órbitas ergódicas, se obtienen estimaciones numéricas con errores absolutos del orden de $10^{-5}$ para el mapa logístico en régimen de caos pleno ($r=4.0$) y de $10^{-13}$ para el mapa de tienda ($p=2.0$). 
+El objetivo principal es formular y validar un marco algorítmico riguroso para la cuantificación de la dinámica caótica, analizando la precisión numérica de las estimaciones frente a soluciones analíticas exactas y el impacto de la aritmética de punto flotante de precisión finita (estándar IEEE 754). Mediante la acumulación temporal del logaritmo de la derivada a lo largo de órbitas ergódicas, se obtienen estimaciones numéricas con errores absolutos del orden de $10^{-5}$ para el mapa logístico en régimen de caos pleno ($r=4.0$) y de $10^{-13}$ para el mapa de tienda ($p=2.0$). 
 
-Asimismo, se demuestra y comprueba computacionalmente el **Teorema de Conjugación Topológica** a través del difeomorfismo $h(y) = \sin^2(\pi y / 2)$, probando que ambos sistemas comparten idéntico exponente analítico $\lambda = \ln(2) \approx 0.69314718$. Este estudio sienta las bases matemáticas y algorítmicas requeridas para la segunda entrega, orientada al diseño y evaluación de esquemas criptográficos de imágenes basados en generadores caóticos de números pseudoaleatorios.
+Asimismo, se evalúa y compara el espectro completo del exponente de Lyapunov a lo largo de los rangos de parámetros de ambos mapas, contrastando el comportamiento con ventanas periódicas del modelo logístico frente a la monotonicidad continua del modelo de tienda. Este estudio sienta las bases matemáticas y algorítmicas requeridas para la segunda entrega, orientada al diseño y evaluación de esquemas criptográficos de imágenes basados en generadores caóticos de números pseudoaleatorios.
 
 ---
 
 ## 2. Revisión Bibliográfica
 
-El estudio de sistemas dinámicos no lineales simples que exhiben dinámicas extremadamente complejas fue popularizado por Robert May (1976), quien demostró que ecuaciones en diferencias de primer orden como el mapa logístico pueden modelar transiciones abruptas desde estados estacionarios estables hasta regímenes estocásticos aparentes. Li y Yorke (1975), en su célebre artículo *"Period Three Implies Chaos"*, establecieron las condiciones topológicas bajo las cuales una función continua en un intervalo compacto garantiza la existencia de órbitas aperiódicas y ciclos de cualquier longitud.
+El estudio de sistemas dinámicos no lineales simples que exhiben dinámicas extremadamente complejas fue popularizado por Robert May (1976), quien demostró que ecuaciones en diferencias de primer orden como el mapa logístico pueden modelar transiciones abruptas desde estados estacionarios estables hasta regímenes caóticos aparentes. Li y Yorke (1975), en su célebre artículo *"Period Three Implies Chaos"*, establecieron las condiciones topológicas bajo las cuales una función continua en un intervalo compacto garantiza la existencia de órbitas aperiódicas y ciclos de cualquier longitud.
 
 En el ámbito de la física matemática y la computación científica, el **Exponente de Lyapunov** se consolidó como el indicador cuantitativo universal para clasificar la dinámica de una trayectoria (Strogatz, 2018). Formalmente, mide el promedio temporal de la tasa de divergencia exponencial entre trayectorias adyacentes.
 
@@ -40,26 +40,26 @@ El análisis comparativo de las fuentes consultadas evidencia discrepancias téc
    Un aspecto crítico advertido por Nepomuceno et al. y resaltado en Zhang & Liu (2023) es que la simulación de mapas caóticos en hardware digital bajo el estándar IEEE 754 de 64 bits sufre de degradación periódica. En particular, para el mapa de tienda en $p=2$, la operación $x_{n+1} = 2 x_n \pmod 1$ es equivalente a un desplazamiento de bits hacia la izquierda (*left bit-shift*). En precisión doble (mantisa de 53 bits), cualquier condición inicial colapsa numéricamente a cero en aproximadamente 53 iteraciones si no se introducen perturbaciones dinámicas. Este fenómeno no es considerado en los desarrollos puramente teóricos de May (1976), haciendo imprescindible el tratamiento riguroso desde la Computación Científica.
 
 3. **Criterios de Evaluación Criptográfica:**
-   Mientras que la literatura matemática clásica se enfoca en la densidad invariante y la ergodicidad (Ulam y von Neumann, 1947), los trabajos aplicados de Wu et al. (2011) demuestran que un valor elevado de $\lambda > 0$ es condición necesaria pero no suficiente: una densidad invariante no uniforme (como la distribución en forma de U del mapa logístico) sesga las secuencias pseudoaleatorias, requiriendo mecanismos correctores que el mapa de tienda (con densidad uniforme $\rho(x) = 1$) resuelve de forma natural.
+   Mientras que la literatura matemática clásica se enfoca en la densidad invariante y la ergodicidad (Ulam y von Neumann, 1947), los trabajos aplicados de Wu et al. (2011) demuestran que un valor elevado de $\lambda > 0$ es condición necesaria pero no suficiente: secuencias con fluctuaciones periódicas no deseadas degradan el cifrado, por lo que el mapa de tienda ofrece una ventaja de diseño frente a la fragilidad del mapa logístico.
 
 ---
 
 ## 4. Identificación del Problema
 
 ### Formulación Concreta y Motivación
-La caracterización numérica de atractores caóticos mediante el exponente de Lyapunov presenta retos computacionales esenciales: la integración asintótica de derivadas a lo largo de trayectorias discretas está sujeta a errores de truncamiento, singularidades numéricas (derivada nula en puntos críticos $x = 0.5$ o derivadas no acotadas), y la lentitud intrínseca de convergencia de promedios temporales ergódicos.
+La caracterización numérica de atractores dinámicos mediante el exponente de Lyapunov presenta retos computacionales esenciales: la integración asintótica de derivadas a lo largo de trayectorias discretas está sujeta a errores de truncamiento, singularidades numéricas (derivada nula en puntos críticos $x = 0.5$ o derivadas no acotadas), y la estabilidad numérica en cálculos de punto flotante.
 
 El problema a resolver consiste en:
 1. Formular e implementar un algoritmo computacional estable y vectorizado para calcular $\lambda$ en el Mapa Logístico y en el Mapa de Tienda.
-2. Determinar experimentalmente el orden de convergencia del error numérico $E(N) = |\lambda_N - \lambda_{\text{teórico}}|$ frente a las soluciones analíticas conocidas.
-3. Verificar numéricamente el Teorema de Conjugación Topológica entre ambos sistemas en sus puntos de máximo caos.
+2. Determinar la precisión y error de las estimaciones numéricas frente a las soluciones analíticas conocidas.
+3. Evaluar comparativamente los espectros de Lyapunov en ambos modelos para determinar su idoneidad como generadores pseudoaleatorios.
 
 ### Aplicación Explícita de Temas de Computación Científica
 El proyecto aplica de manera central los siguientes conceptos del curso:
-* **Análisis de Error y Convergencia Asintótica:** Modelado del decaimiento del error de aproximación en función del tamaño muestral $N$, verificando experimentalmente la cota $\mathcal{O}(1/\sqrt{N})$.
-* **Aritmética de Punto Flotante y Estabilidad Numérica:** Control de singularidades numéricas (evitar $\ln(0)$ mediante barreras $\epsilon = 10^{-14}$) y tratamiento de la degradación digital por mantisa finita.
-* **Integración Numérica sobre Medidas Invariantes:** Cálculo del promedio espacial mediante la integral de Ulam-von Neumann frente al promedio temporal obtenido por la iteración de la órbita (Teorema Ergódico de Birkhoff).
-* **Computación Vectorizada y Eficiencia Algorítmica:** Implementación de barridos paramétricos mediante arreglos multidimensionales en NumPy evitando ciclos interpretados lentos.
+* **Cálculo Numérico de Promedios Asintóticos:** Aproximación computacional del límite temporal $\frac{1}{N} \sum \ln |f'(x_i)|$.
+* **Aritmética de Punto Flotante y Estabilidad Numérica:** Control de singularidades numéricas (evitar $\ln(0)$ mediante umbrales $\epsilon = 10^{-14}$) y tratamiento de la degradación digital por mantisa finita (IEEE 754).
+* **Validación de Métodos Numéricos vs. Soluciones Analíticas:** Cuantificación rigurosa del error absoluto frente a soluciones exactas en puntos fijos y regímenes de máxima entropía.
+* **Computación Vectorizada:** Implementación de barridos paramétricos continuos mediante NumPy, optimizando el rendimiento algorítmico.
 
 ---
 
@@ -89,19 +89,6 @@ Para validar el algoritmo numérico se utilizan tres soluciones analíticas exac
    Bajo la medida invariante de Ulam-von Neumann $\rho(x) = \frac{1}{\pi \sqrt{x(1-x)}}$, el exponente exacto es:
    $$\lambda(4.0) = \int_0^1 \ln |4(1 - 2x)| \frac{1}{\pi \sqrt{x(1-x)}} \, dx = \ln(2) \approx 0.69314718$$
 
-### 5.3. Teorema de Conjugación Topológica
-Existe un difeomorfismo $h: [0, 1] \to [0, 1]$ definido por:
-$$h(y) = \sin^2\left(\frac{\pi y}{2}\right)$$
-que conmuta de forma exacta las acciones de ambos mapas:
-$$L_{r=4}(h(y)) = h(T_{p=2}(y))$$
-Demostración:
-$$L_{r=4}(h(y)) = 4 \sin^2\left(\frac{\pi y}{2}\right) \left(1 - \sin^2\left(\frac{\pi y}{2}\right)\right) = 4 \sin^2\left(\frac{\pi y}{2}\right)\cos^2\left(\frac{\pi y}{2}\right) = \sin^2(\pi y)$$
-Por otro lado, para $T_{p=2}(y)$:
-- Si $y < 0.5$: $h(2y) = \sin^2(\pi y)$.
-- Si $y \ge 0.5$: $h(2(1-y)) = \sin^2(\pi - \pi y) = \sin^2(\pi y)$.
-Al coincidir en todo el dominio, la equivalencia topológica preserva la entropía métrica y garantiza:
-$$\lambda_{\text{Log}}(4.0) = \lambda_{\text{Tienda}}(2.0) = \ln(2)$$
-
 ---
 
 ## 6. Implementación y Experimentos
@@ -122,27 +109,18 @@ Se evaluaron los modelos implementados frente a los valores teóricos exactos en
 | **Modelo Tienda** | $p = 2.0$ | Caos Uniforme | $\ln(2) \approx 0.69314718$ | $0.69314718$ | $1.09 \times 10^{-13}$ |
 | **Modelo Tienda** | $p = 0.8$ | Contracción | $\ln(0.8) \approx -0.22314355$ | $-0.22314355$ | $2.06 \times 10^{-14}$ |
 
-### 6.3. Experimento de Convergencia Numérica vs. $N$
-Se analizó la evolución del error absoluto $E(N) = |\lambda_N - \ln(2)|$ en el mapa logístico ($r=4.0$):
-* Para $N = 100$: $\lambda_N = 0.695202$, Error = $2.05 \times 10^{-3}$
-* Para $N = 1{,}000$: $\lambda_N = 0.692946$, Error = $2.01 \times 10^{-4}$
-* Para $N = 10{,}000$: $\lambda_N = 0.693116$, Error = $3.16 \times 10^{-5}$
-* Para $N = 50{,}000$: $\lambda_N = 0.693153$, Error = $5.37 \times 10^{-6}$
-
-El ajuste en escala log-log confirma una pendiente de decaimiento compatible con $\mathcal{O}(1/\sqrt{N})$, validando el comportamiento estadístico de la aproximación por integración de Monte Carlo implícita en la suma ergódica.
-
 ---
 
 ## 7. Discusión de los Resultados Obtenidos
 
 1. **Precisión Numérica Comparada:**
-   En el mapa de tienda, dado que $|f'(x)| = p$ es constante a trozos, el error numérico es prácticamente nulo ($10^{-13}$, limitado únicamente por la precisión de la mantisa de IEEE 754). En contraste, en el mapa logístico, el estado visita continuamente valores cercanos a $x = 0.5$ (donde $f'(x) \to 0$), lo que produce fluctuaciones locales en $\ln|f'(x_i)|$ que ralentizan la velocidad de convergencia asintótica a $\mathcal{O}(1/\sqrt{N})$.
+   En el mapa de tienda, dado que $|f'(x)| = p$ es constante a trozos, el error numérico es prácticamente nulo ($10^{-13}$, limitado únicamente por la precisión de la mantisa de IEEE 754). En contraste, en el mapa logístico, el estado visita continuamente valores cercanos a $x = 0.5$ (donde $f'(x) \to 0$), lo que produce fluctuaciones locales en $\ln|f'(x_i)|$ que requieren un mayor número de iteraciones ($N \approx 30{,}000$) para alcanzar una precisión de $10^{-5}$.
 
-2. **Validación de la Conjugación Topológica:**
-   La concordancia numérica en $\lambda = \ln(2)$ confirma que la no linealidad cuadrática del mapa logístico y la linealidad a trozos del mapa de tienda generan exactamente la misma tasa promedio de generación de entropía métrica cuando $r=4$ y $p=2$. Sin embargo, sus densidades invariantes difieren radicalmente: mientras que el mapa de tienda distribuye sus estados de forma perfectamente uniforme ($\rho(y) = 1$), el mapa logístico concentra su probabilidad en los extremos del intervalo ($\rho(x) \to \infty$ en $x \to 0$ y $x \to 1$).
+2. **Comparación Espectral entre Modelos:**
+   El espectro de Lyapunov del mapa logístico muestra claramente la transición de estabilidad a caos y la presencia de ventanas periódicas densas donde $\lambda$ se hace negativo (como en $r = 3.83$). En contraposición, el mapa de tienda exhibe una función monótona creciente $\lambda(p) = \ln(p)$, garantizando caos continuo sin ventanas periódicas para todo $p > 1$.
 
 3. **Limitaciones Numéricas Encontradas:**
-   En el mapa de tienda con $p=2$, si no se aplica una corrección de perturbación infinitesimal cuando $x_n = 0.5$, la órbita colapsa a $0$ de forma prematura debido al truncamiento de bits en aritmética de punto flotante de 64 bits. Esta dificultad fue resuelta en la implementación modular introduciendo un reinyector dinámico de precisión de máquina.
+   En el mapa de tienda con $p=2$, si no se aplica una corrección de perturbación infinitesimal cuando $x_n = 0.5$, la órbita colapsa a $0$ de forma prematura debido al truncamiento de bits en aritmética de punto flotante de 64 bits (*bit-shift effect*). Esta dificultad fue resuelta en la implementación modular introduciendo un control de singularidad dinámica.
 
 ---
 
@@ -151,12 +129,12 @@ El ajuste en escala log-log confirma una pendiente de decaimiento compatible con
 ### Conclusiones Principales:
 * Se implementó con éxito un paquete computacional en Python modular y vectorizado para la caracterización analítica y numérica del Exponente de Lyapunov.
 * Las soluciones numéricas alcanzaron una concordancia rigurosa con los valores analíticos teóricos, exhibiendo errores del orden de máquina ($10^{-14}$) en regímenes contractivos y de $10^{-5}$ en regímenes caóticos tras $30{,}000$ iteraciones.
-* Se comprobó teórica y numéricamente el Teorema de Conjugación Topológica, elucidando las diferencias en sus medidas de probabilidad invariantes.
+* Se demostró la estabilidad y precisión del algoritmo numérico para discriminar entre regímenes estables, periódicos y caóticos.
 
 ### Pasos Siguientes hacia la Segunda Entrega (Póster Científico):
-1. **Desarrollo del Algoritmo Criptográfico:** Implementar un generador de secuencias pseudoaleatorias (PRNG) basado en el mapa de tienda y el mapa logístico acoplados para alimentar un cifrador de imágenes en arquitectura permutación-difusión.
+1. **Desarrollo del Algoritmo Criptográfico:** Implementar un generador de secuencias pseudoaleatorias (PRNG) basado en el mapa de tienda y el mapa logístico para alimentar un cifrador de imágenes en arquitectura permutación-difusión.
 2. **Evaluación de Resistencia Diferencial (NPCR y UACI):** Programar las métricas de aleatoriedad formalizadas por Wu et al. (2011) para evaluar si las imágenes cifradas superan los umbrales críticos $\mu_{\text{NPCR}} \ge 99.6094\%$ y $\mu_{\text{UACI}} \approx 33.4635\%$.
-3. **Elaboración del Póster Científico:** Sintetizar visualmente la formulación matemática, los diagramas de Lyapunov, la convergencia del error y los resultados de las pruebas criptográficas para la sustentación y socialización final.
+3. **Elaboración del Póster Científico:** Sintetizar visualmente la formulación matemática, los espectros de Lyapunov y los resultados de las pruebas criptográficas para la sustentación y socialización final.
 
 ---
 
@@ -181,19 +159,19 @@ El ajuste en escala log-log confirma una pendiente de decaimiento compatible con
 
 ### 2. Prompts Relevantes Empleados
 * *"Revisa el proyecto, ten en cuenta que se busca hacer el proyecto según la rúbrica del pdf adjunto, además haz planes de los posibles pasos siguientes, teniendo en cuenta la primera entrega."*
-* *"El trabajo a realizar que solo sea de los mapas y Lyapunov, nada de sensitivity, cobweb ni bifurcation (elimina todo lo referente a eso); simplifica y deja un código muy claro y sencillo."*
-* *"Verifica analíticamente que la integral de Ulam-von Neumann para r=4 coincide exactamente con ln(2) y genera la función para medir el decaimiento del error en función de N."*
+* *"El trabajo a realizar que solo sea de los mapas y Lyapunov, nada de sensitivity, cobweb ni bifurcation; simplifica y deja un código muy claro y sencillo."*
+* *"No voy a usar tanto las convergence_error_analysis y conjugacy_logistic_tent, elimínalo y todo el cálculo de ellas, y en el readme y todo lo demás también."*
 
 ### 3. Uso de la Información Generada (Aceptada, Modificada o Descartada)
 * **Aceptado:** La estructura modular de clases en Python (`LogisticMap`, `TentMap`) y las rutinas vectorizadas de evaluación espectral de Lyapunov.
-* **Modificado:** Los esquemas de visualización iniciales (que incluían diagramas de bifurcación y telarañas) fueron completamente descartados y sustituidos por análisis rigurosos de convergencia de error y comparación espectral directa, atendiendo a la directriz de simplificación y enfoque temático exclusivo en Lyapunov.
-* **Descartado:** Sugerencias preliminares de implementar cifrados complejos en esta primera entrega, postergándolos de manera justificada para la segunda entrega conforme a la rúbrica.
+* **Modificado:** Los esquemas de visualización iniciales fueron simplificados de manera radical para concentrarse estrictamente en los espectros de Lyapunov de ambos mapas.
+* **Descartado:** Cálculos adicionales no esenciales (diagramas de bifurcación, telarañas, difeomorfismos de conjugación y curvas de error vs $N$) para preservar la simplicidad y claridad absoluta del código entregable.
 
 ### 4. Validación de la Información
-* **Validación Matemática:** Cada ecuación analítica ($\lambda(p) = \ln(p)$, $\lambda(r) = \ln|2-r|$, difeomorfismo de conjugación $h(y)$ y valor $\ln(2)$) fue demostrada algebraicamente de forma independiente y contrastada con la literatura canónica (Strogatz 2018; Zhang & Liu 2023).
+* **Validación Matemática:** Cada ecuación analítica ($\lambda(p) = \ln(p)$, $\lambda(r) = \ln|2-r|$, y el valor $\ln(2)$ en $r=4$) fue demostrada algebraicamente de forma independiente y contrastada con la literatura canónica (Strogatz 2018; Zhang & Liu 2023).
 * **Validación Computacional:** Se implementó una suite automatizada de pruebas unitarias (`tests/test_lyapunov.py`) que valida con tolerancia estricta ($10^{-3}$ a $10^{-2}$) que las funciones numéricas converjan a los valores teóricos exactos en todos los regímenes dinámicos.
 
 ### 5. Contribuciones Individuales de los Integrantes
 * **Integrante 1:** Revisión de la literatura científica, derivación matemática analítica del exponente de Lyapunov y redacción del marco teórico.
 * **Integrante 2:** Implementación del código modular en Python (`src/maps.py`, `src/lyapunov.py`), diseño de pruebas unitarias e integración de la suite de validación.
-* **Integrante 3:** Experimentación numérica, análisis de convergencia del error asintótico, generación de figuras científicas y consolidación del informe escrito.
+* **Integrante 3:** Experimentación numérica, generación de figuras científicas y consolidación del informe escrito.

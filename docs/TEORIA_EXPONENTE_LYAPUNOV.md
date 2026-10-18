@@ -116,33 +116,7 @@ En computadoras con estándar IEEE 754 (precisión doble de 64 bits con 53 bits 
 
 ---
 
-## 5. El Teorema de Conjugación Topológica
-
-Existe un puente matemático entre el Mapa Logístico ($r=4$) y el Mapa de Tienda ($p=2$).
-
-**Teorema:** Los sistemas dinámicos $([0, 1], T_{p=2})$ y $([0, 1], L_{r=4})$ son **topológicamente conjugados** mediante el difeomorfismo:
-
-$$h(y) = \sin^2\left(\frac{\pi y}{2}\right), \quad h: [0, 1] \to [0, 1]$$
-
-**Demostración:**
-Evaluamos $L_{r=4}(h(y))$:
-$$L(h(y)) = 4 h(y) (1 - h(y)) = 4 \sin^2\left(\frac{\pi y}{2}\right) \cos^2\left(\frac{\pi y}{2}\right) = \sin^2(\pi y)$$
-
-Por otra parte, evaluamos $h(T(y))$ para $T(y) = \begin{cases} 2y, & y < 0.5 \\ 2(1-y), & y \ge 0.5 \end{cases}$:
-- Si $y < 0.5$: $h(2y) = \sin^2\left(\frac{\pi (2y)}{2}\right) = \sin^2(\pi y)$.
-- Si $y \ge 0.5$: $h(2(1-y)) = \sin^2(\pi(1-y)) = \sin^2(\pi y)$.
-
-En ambos casos:
-$$L(h(y)) = h(T(y))$$
-
-**Corolario de Invarianza de Lyapunov:**
-Como la conjugación preserva las propiedades ergódicas y la entropía métrica:
-
-$$\lambda_{\text{Logístico}}(r=4) = \lambda_{\text{Tienda}}(p=2) = \ln(2) \approx 0.69314718\dots$$
-
----
-
-## 6. Conexión con los Artículos Adjuntos
+## 5. Conexión con los Artículos Adjuntos
 
 ### 6.1. Criptografía de Imágenes Basada en Caos (Zhang & Liu, 2023)
 En el artículo `docs/Chaos-Based_Image_Encryption_Review.pdf`, se destaca que los generadores de números pseudoaleatorios (PRNG) criptográficos requieren:

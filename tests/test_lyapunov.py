@@ -10,7 +10,6 @@ from src.lyapunov import (
     calculate_lyapunov_exponent,
     analytical_lyapunov_tent,
     analytical_lyapunov_logistic_fixed_point,
-    analyze_convergence,
 )
 
 
@@ -63,14 +62,6 @@ class TestDynamicalMaps(unittest.TestCase):
         logm = LogisticMap(r=3.83)
         num_val = calculate_lyapunov_exponent(logm, x0=0.5, n_transient=2000, n_iterations=8000)
         self.assertLess(num_val, 0.0)
-
-    def test_convergence_analysis(self):
-        """Verifica que el error decaiga conforme N aumenta."""
-        logm = LogisticMap(r=4.0)
-        exact_val = np.log(2.0)
-        res = analyze_convergence(logm, exact_val, x0=0.314, n_values=[100, 10000])
-        # El error con N=10000 debe ser menor que con N=100
-        self.assertLess(res["errors"][1], res["errors"][0])
 
 
 if __name__ == '__main__':

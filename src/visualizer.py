@@ -1,9 +1,8 @@
 """
 Módulo de visualización científica enfocado exclusivamente en:
-1. Espectros del Exponente de Lyapunov (Logístico y Tienda).
-2. Comparación de exponentes y Teorema de Conjugación Topológica.
-3. Análisis de convergencia y error numérico vs. número de iteraciones N.
-4. Densidades de probabilidad invariantes asociadas a la conjugación.
+1. Espectro del Exponente de Lyapunov del Mapa Logístico.
+2. Espectro del Exponente de Lyapunov del Mapa de Tienda.
+3. Comparación lado a lado de los exponentes de ambos mapas.
 """
 
 import os
@@ -16,7 +15,6 @@ from .lyapunov import (
     lyapunov_tent_spectrum,
     analytical_lyapunov_tent,
     analytical_lyapunov_logistic_fixed_point,
-    analyze_convergence,
 )
 
 
@@ -139,8 +137,7 @@ def plot_tent_lyapunov(save_path: str = "figures/tent_lyapunov.png"):
 
 def plot_comparison(save_path: str = "figures/lyapunov_comparison_logistic_vs_tent.png"):
     """
-    Compara ambos modelos lado a lado y resalta la conjugación topológica
-    en los puntos de máximo caos (r=4, p=2).
+    Compara ambos modelos lado a lado.
     """
     setup_style()
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5.5))
@@ -171,112 +168,7 @@ def plot_comparison(save_path: str = "figures/lyapunov_comparison_logistic_vs_te
     ax2.set_ylim(-1.5, 0.85)
     ax2.legend(loc='lower right')
 
-    fig.suptitle(r"Comparación de Exponentes de Lyapunov y Teorema de Conjugación: $\lambda_{\mathrm{Log}}(4) = \lambda_{\mathrm{Tienda}}(2) = \ln(2)$",
-                 fontweight='bold', y=0.98)
-
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    plt.savefig(save_path)
-    plt.close()
-    print(f"[OK] Gráfica guardada: {save_path}")
-
-
-def plot_convergence_analysis(save_path: str = "figures/convergence_error_analysis.png"):
-    """
-    Grafica la convergencia del cálculo numérico del exponente de Lyapunov y su
-    error absoluto en función de N (análisis de error de computación científica).
-    """
-    setup_style()
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5.2))
-
-    exact_val = np.log(2.0)
-    n_list = [50, 100, 200, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000]
-
-    log_map = LogisticMap(4.0)
-    tent_map = TentMap(2.0)
-
-    conv_log = analyze_convergence(log_map, exact_val, x0=0.314159, n_values=n_list)
-    conv_tent = analyze_convergence(tent_map, exact_val, x0=0.314159, n_values=n_list)
-
-    # Panel 1: Estimación vs N
-    ax1.plot(conv_log['n_values'], conv_log['estimates'], 'o-', color='#1565c0', lw=1.6, label='Logístico ($r=4$)')
-    ax1.plot(conv_tent['n_values'], conv_tent['estimates'], 's--', color='#e65100', lw=1.6, label='Tienda ($p=2$)')
-    ax1.axhline(exact_val, color='#d62728', linestyle=':', lw=1.5, label=r'Valor exacto $\ln(2) \approx 0.69315$')
-    ax1.set_xscale('log')
-    ax1.set_title("Convergencia de la Estimación Numérica vs. $N$", fontweight='bold')
-    ax1.set_xlabel("Número de Iteraciones $N$")
-    ax1.set_ylabel(r"Exponente de Lyapunov estimado $\lambda_N$")
-    ax1.legend(loc='lower right')
-
-    # Panel 2: Error Absoluto en escala Log-Log
-    ax2.plot(conv_log['n_values'], conv_log['errors'], 'o-', color='#1565c0', lw=1.6, label='Error Logístico $|\\lambda_N - \\ln(2)|$')
-    ax2.plot(conv_tent['n_values'], conv_tent['errors'], 's--', color='#e65100', lw=1.6, label='Error Tienda $|\\lambda_N - \\ln(2)|$')
-    
-    # Pendiente teórica de Monte Carlo / promedio ergódico O(1/sqrt(N))
-    n_ref = np.array(n_list, dtype=float)
-    ref_curve = 0.5 / np.sqrt(n_ref)
-    ax2.plot(n_ref, ref_curve, 'k:', lw=1.2, label=r'Escala de referencia $\mathcal{O}(1/\sqrt{N})$')
-
-    ax2.set_xscale('log')
-    ax2.set_yscale('log')
-    ax2.set_title("Decaimiento del Error Numérico (Escala Log-Log)", fontweight='bold')
-    ax2.set_xlabel("Número de Iteraciones $N$")
-    ax2.set_ylabel("Error Absoluto")
-    ax2.legend(loc='upper right')
-
-    fig.suptitle("Análisis Numérico de Error y Convergencia del Exponente de Lyapunov",
-                 fontweight='bold', y=0.98)
-
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    plt.savefig(save_path)
-    plt.close()
-    print(f"[OK] Gráfica guardada: {save_path}")
-
-
-def plot_topological_conjugacy(save_path: str = "figures/conjugacy_logistic_tent.png"):
-    """
-    Visualiza la conjugación topológica entre el Mapa de Tienda (p=2) y el Mapa Logístico (r=4):
-        x = h(y) = sin^2(pi * y / 2)
-    y sus densidades invariantes.
-    """
-    setup_style()
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5.2))
-
-    y = np.linspace(0, 1, 500)
-    h_y = np.sin(np.pi * y / 2.0) ** 2
-
-    ax1.plot(y, h_y, color='#6a1b9a', lw=2.2, label=r'$h(y) = \sin^2\left(\frac{\pi y}{2}\right)$')
-    ax1.plot(y, y, 'k--', lw=1.0, alpha=0.5, label=r'$y = x$')
-    ax1.set_title(r"Difeomorfismo de Conjugación: $h:[0, 1] \to [0, 1]$", fontweight='bold')
-    ax1.set_xlabel(r"Variable Tienda $y \in [0, 1]$")
-    ax1.set_ylabel(r"Variable Logístico $x = h(y)$")
-    ax1.legend(loc='upper left')
-
-    # Histogramas de medidas invariantes
-    tent = TentMap(2.0)
-    logm = LogisticMap(4.0)
-
-    n_samples = 80000
-    traj_tent = tent.trajectory(0.314159, n_samples)[1000:]
-    traj_logm = logm.trajectory(0.314159, n_samples)[1000:]
-
-    ax2.hist(traj_tent, bins=60, density=True, alpha=0.45, color='#ff7f0e',
-             label=r'Tienda $p=2$: Medida Uniforme $\rho(y) = 1$')
-    ax2.hist(traj_logm, bins=60, density=True, alpha=0.45, color='#1f77b4',
-             label=r'Logístico $r=4$: $\rho(x) = \frac{1}{\pi \sqrt{x(1-x)}}$')
-
-    # Curva analítica para el logístico
-    x_grid = np.linspace(0.005, 0.995, 300)
-    density_log = 1.0 / (np.pi * np.sqrt(x_grid * (1.0 - x_grid)))
-    ax2.plot(x_grid, density_log, 'b-', lw=1.5, label='Densidad Invariante Exacta')
-
-    ax2.set_title(r"Densidades de Probabilidad Invariantes", fontweight='bold')
-    ax2.set_xlabel("Valor en el Atractor")
-    ax2.set_ylabel(r"Densidad $\rho$")
-    ax2.set_xlim(0.0, 1.0)
-    ax2.set_ylim(0, 4.0)
-    ax2.legend(loc='upper center', fontsize=9)
-
-    fig.suptitle(r"Conjugación Topológica: $L(h(y)) = h(T(y)) \rightarrow \lambda_{\mathrm{Log}}(4) = \lambda_{\mathrm{Tienda}}(2) = \ln(2)$",
+    fig.suptitle("Comparación de los Espectros del Exponente de Lyapunov: Mapa Logístico vs. Modelo de Tienda",
                  fontweight='bold', y=0.98)
 
     os.makedirs(os.path.dirname(save_path), exist_ok=True)

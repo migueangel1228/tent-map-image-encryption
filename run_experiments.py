@@ -12,16 +12,11 @@ import numpy as np
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from src.maps import LogisticMap, TentMap
-from src.lyapunov import (
-    calculate_lyapunov_exponent,
-    analyze_convergence,
-)
+from src.lyapunov import calculate_lyapunov_exponent
 from src.visualizer import (
     plot_logistic_lyapunov,
     plot_tent_lyapunov,
     plot_comparison,
-    plot_convergence_analysis,
-    plot_topological_conjugacy,
 )
 
 
@@ -90,16 +85,9 @@ def run_numerical_benchmarks():
     print(f"    - Error Absoluto:        {err_tent08:.2e}")
     print(f"    - Estado dinámico:       CONTRACCIÓN AL ORIGEN (lambda < 0)")
 
-    # Benchmark 6: Análisis de Convergencia del Error vs N
-    print_banner("2. ANÁLISIS DE CONVERGENCIA NUMÉRICA Y ERROR ASINTÓTICO")
-    conv_results = analyze_convergence(log_map_4, exact_lambda=lambda_exact_log4, n_values=[100, 1000, 10000, 50000])
-    print(f"[*] Convergencia en Mapa Logístico (r = 4.0):")
-    for n, est, err in zip(conv_results['n_values'], conv_results['estimates'], conv_results['errors']):
-        print(f"    N = {n:6d}  |  lambda_N = {est:10.6f}  |  Error = {err:.3e}")
-
 
 def generate_all_figures():
-    print_banner("3. GENERACIÓN DE FIGURAS CIENTÍFICAS")
+    print_banner("2. GENERACIÓN DE FIGURAS CIENTÍFICAS")
     t0 = time.time()
 
     print("-> Generando figura 1: Espectro de Lyapunov - Mapa Logístico...")
@@ -110,12 +98,6 @@ def generate_all_figures():
 
     print("-> Generando figura 3: Comparación Logístico vs. Tienda...")
     plot_comparison("figures/lyapunov_comparison_logistic_vs_tent.png")
-
-    print("-> Generando figura 4: Análisis de Convergencia y Error Numérico vs. N...")
-    plot_convergence_analysis("figures/convergence_error_analysis.png")
-
-    print("-> Generando figura 5: Difeomorfismo de Conjugación y Densidades Invariantes...")
-    plot_topological_conjugacy("figures/conjugacy_logistic_tent.png")
 
     elapsed = time.time() - t0
     print(f"\n[Éxito] Todas las gráficas fueron generadas en {elapsed:.2f} segundos.")
@@ -130,7 +112,7 @@ def main():
     run_numerical_benchmarks()
     generate_all_figures()
 
-    print_banner("4. RESUMEN DE EJECUCIÓN")
+    print_banner("3. RESUMEN DE EJECUCIÓN")
     print("El cálculo y renderizado finalizaron satisfactoriamente.")
     print("Directorio de imágenes: figures/")
     print("Directorio de documentos y referencias: docs/")

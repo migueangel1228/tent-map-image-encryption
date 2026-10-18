@@ -4,7 +4,7 @@
 > **Proyecto:** Modelado Numérico del Exponente de Lyapunov en Mapas Unidimensionales y su Aplicación en Criptografía  
 > **Evaluación:** Primera Entrega — Formulación y Solución del Problema (50% de la nota final)
 
-Este proyecto implementa el modelado matemático, la resolución analítica y el cálculo numérico del **Exponente de Lyapunov** ($\lambda$) para dos sistemas dinámicos discretos fundamentales: el **Mapa Logístico** y el **Modelo de Tienda (*Tent Map*)**. Se analiza la tasa de convergencia del error numérico respecto al número de iteraciones ($N$), los efectos de la aritmética finita (IEEE 754), y la equivalencia ergódica a través del **Teorema de Conjugación Topológica**.
+Este proyecto implementa el modelado matemático, la resolución analítica y el cálculo numérico del **Exponente de Lyapunov** ($\lambda$) para dos sistemas dinámicos discretos fundamentales: el **Mapa Logístico** y el **Modelo de Tienda (*Tent Map*)**. Se evalúan las transiciones dinámicas entre regímenes periódicos y caóticos, los efectos de la estabilidad numérica en aritmética de punto flotante (IEEE 754), y la validación frente a soluciones analíticas exactas.
 
 ---
 
@@ -22,13 +22,11 @@ Este proyecto implementa el modelado matemático, la resolución analítica y el
 ├── figures/
 │   ├── logistic_lyapunov.png            # Espectro del Exponente de Lyapunov: Mapa Logístico
 │   ├── tent_lyapunov.png                # Espectro del Exponente de Lyapunov: Modelo de Tienda
-│   ├── lyapunov_comparison_logistic_vs_tent.png # Comparativa de espectros y conjugación topológica
-│   ├── convergence_error_analysis.png   # Decaimiento del error absoluto vs. N en escala log-log
-│   └── conjugacy_logistic_tent.png      # Difeomorfismo y medidas de densidad invariante
+│   └── lyapunov_comparison_logistic_vs_tent.png # Comparativa de espectros de ambos mapas
 ├── src/
 │   ├── __init__.py                      # Exportaciones principales del paquete modular
 │   ├── maps.py                          # Clases dinámicas LogisticMap y TentMap
-│   ├── lyapunov.py                      # Algoritmo numérico, soluciones analíticas y convergencia
+│   ├── lyapunov.py                      # Algoritmo numérico y soluciones analíticas exactas
 │   └── visualizer.py                    # Generación automatizada de figuras científicas
 ├── tests/
 │   └── test_lyapunov.py                 # Suite de pruebas unitarias automatizadas (unittest)
@@ -51,9 +49,9 @@ La primera entrega representa el **50% de la calificación final** del curso y c
 
 ### Condición Obligatoria de Computación Científica:
 El proyecto aplica de forma nuclear y explícita los siguientes temas del curso:
-1. **Cálculo de Promedios Ergódicos Asintóticos:** Aproximación de límites temporales $\frac{1}{N} \sum_{i=0}^{N-1} \ln |f'(x_i)|$.
-2. **Análisis de Error Numérico:** Evaluación del decaimiento asintótico $E(N) = |\lambda_N - \lambda_{\text{exacto}}| \sim \mathcal{O}(1/\sqrt{N})$.
-3. **Estabilidad en Aritmética de Punto Flotante (IEEE 754):** Control de singularidades ($|f'(x)| < \epsilon = 10^{-14}$) y mitigación de la degradación digital (*left-bit shift*) en el mapa de tienda con $p=2$.
+1. **Cálculo de Promedios Ergódicos Asintóticos:** Aproximación de límites temporales $\lambda = \frac{1}{N} \sum_{i=0}^{N-1} \ln |f'(x_i)|$.
+2. **Estabilidad en Aritmética de Punto Flotante (IEEE 754):** Control de singularidades numéricas ($|f'(x)| < \epsilon = 10^{-14}$) para evitar $\ln(0)$ y mitigación de la degradación digital (*left-bit shift*) en el mapa de tienda con $p=2$.
+3. **Validación Numérica vs. Analítica:** Contraste de precisión contra soluciones analíticas cerradas en puntos fijos atractores y caos pleno.
 
 ---
 
@@ -89,7 +87,7 @@ Su derivada analítica es $f'(x) = r(1 - 2x)$.
   - En $r = 3$: Límite de estabilidad del punto fijo ($\lambda = 0$).
 * **$r \approx 3.8284$ (Ventana de Li-Yorke):** Período 3 con $\lambda < 0$.
 * **$r = 4.0$ (Caos Total con Medida de Ulam-von Neumann):**
-  La densidad de probabilidad invariante es $\rho(x) = \frac{1}{\pi \sqrt{x(1-x)}}$, resultando en el valor analítico exacto:
+  El exponente analítico exacto es:
   $$\lambda(4.0) = \ln(2) \approx 0.69314718$$
 
 ![Espectro de Lyapunov - Mapa Logístico](figures/logistic_lyapunov.png)
@@ -108,44 +106,25 @@ $$\lambda(p) = \ln(p)$$
 * **$0 < p < 1$:** $\lambda = \ln(p) < 0$ (Contracción hacia el origen).
 * **$p = 1$:** $\lambda = \ln(1) = 0$ (Frontera de transición).
 * **$1 < p \le 2$:** $\lambda = \ln(p) > 0$ (Caos uniforme continuo sin ventanas periódicas).
-* **$p = 2$:** $\lambda = \ln(2) \approx 0.69314718$ (Caos pleno con densidad uniforme $\rho(x) = 1$).
+* **$p = 2$:** $\lambda = \ln(2) \approx 0.69314718$ (Caos pleno con soporte completo).
 
 ![Espectro de Lyapunov - Modelo de Tienda](figures/tent_lyapunov.png)
 
 ---
 
-## 🔄 4. Comparación y Teorema de Conjugación Topológica
+## 🔄 4. Comparación de los Espectros de Lyapunov
 
-A pesar de que el mapa logístico es cuadrático no lineal y el mapa de tienda es lineal a trozos, ambos sistemas son **topológicamente conjugados** en sus valores máximos ($r=4$ y $p=2$) a través del difeomorfismo:
-
-$$h(y) = \sin^2\left(\frac{\pi y}{2}\right)$$
-
-Se verifica la conmutación:
-$$L_{r=4}(h(y)) = h(T_{p=2}(y)) \implies \lambda_{\text{Log}}(4) = \lambda_{\text{Tienda}}(2) = \ln(2) \approx 0.69314718$$
-
-| Característica | Mapa Logístico ($r=4$) | Modelo de Tienda ($p=2$) |
-| :--- | :--- | :--- |
-| **Naturaleza del Mapa** | No lineal suave (cuadrático) | Lineal a trozos |
-| **Exponente de Lyapunov** | $\lambda = \ln(2) \approx 0.69315$ | $\lambda = \ln(2) \approx 0.69315$ |
-| **Densidad Invariante $\rho(x)$** | $\frac{1}{\pi \sqrt{x(1-x)}}$ | $1.0$ (Uniforme en $[0, 1]$) |
-| **Ventanas Periódicas** | Infinitas dentro del intervalo caótico | Ausentes en todo el rango caótico |
+El proyecto compara lado a lado ambos modelos para evidenciar sus diferencias estructurales:
+- El **Mapa Logístico** presenta un espectro no lineal con múltiples bifurcaciones e infinitas ventanas periódicas donde $\lambda < 0$.
+- El **Mapa de Tienda** exhibe una curva monótona continua $\lambda(p) = \ln(p)$, sin fluctuaciones periódicas espurias.
 
 ![Comparación de Exponentes de Lyapunov](figures/lyapunov_comparison_logistic_vs_tent.png)
-![Conjugación Topológica y Medidas Invariantes](figures/conjugacy_logistic_tent.png)
 
 ---
 
-## 📊 5. Análisis de Error Numérico y Benchmarks
+## 📊 5. Tabla de Validación Numérica (Benchmarks)
 
-Se evalúa el error absoluto del promedio ergódico temporal:
-
-$$E(N) = |\lambda_N - \lambda_{\text{exacto}}|$$
-
-El error numérico decae a una tasa asintótica $\mathcal{O}(1/\sqrt{N})$, típica de promedios sobre medidas ergódicas.
-
-![Análisis de Convergencia del Error](figures/convergence_error_analysis.png)
-
-### Tabla de Benchmarks Numéricos
+Los resultados calculados mediante `run_experiments.py` demuestran concordancia estricta entre la teoría y la computación:
 
 | Modelo | Parámetro | Régimen | $\lambda$ Teórico Exacto | $\lambda$ Numérico | Error Absoluto |
 | :--- | :---: | :--- | :---: | :---: | :---: |
