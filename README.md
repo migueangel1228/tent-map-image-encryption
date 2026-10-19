@@ -13,8 +13,10 @@ Este proyecto implementa el modelado matemático, la resolución analítica y el
 ```text
 .
 ├── docs/
-│   ├── INFORME_PRIMERA_ENTREGA.md       # Informe escrito formal (8 secciones obligatorias + Declaración de IA)
-│   ├── GUIA_SUSTENTACION.md             # Banco de preguntas y respuestas para la sustentación oral (12 min)
+│   ├── INFORME_PRIMERA_ENTREGA.tex      # Informe escrito formal en LaTeX (compilable en Overleaf / TeX Live)
+│   ├── INFORME_PRIMERA_ENTREGA.md       # Versión en Markdown del informe
+│   ├── GUIA_SUSTENTACION.tex            # Guía rápida de sustentación oral en LaTeX
+│   ├── GUIA_SUSTENTACION.md             # Guía rápida de sustentación oral en Markdown
 │   ├── TEORIA_EXPONENTE_LYAPUNOV.md     # Demostraciones analíticas formales y fundamentos dinámicos
 │   ├── RESUMEN_PAPERS.md                # Síntesis crítica de los artículos de referencia (MDPI / JSAT)
 │   ├── Chaos-Based_Image_Encryption_Review.pdf
