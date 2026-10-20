@@ -17,7 +17,9 @@ Este proyecto implementa el modelado matemático, la resolución analítica y el
 │   ├── INFORME_PRIMERA_ENTREGA.md       # Versión en Markdown del informe
 │   ├── GUIA_SUSTENTACION.tex            # Guía rápida de sustentación oral en LaTeX
 │   ├── GUIA_SUSTENTACION.md             # Guía rápida de sustentación oral en Markdown
+│   ├── TEORIA_EXPONENTE_LYAPUNOV.tex    # Fundamentación teórica y derivaciones analíticas en LaTeX
 │   ├── TEORIA_EXPONENTE_LYAPUNOV.md     # Demostraciones analíticas formales y fundamentos dinámicos
+│   ├── RESUMEN_PAPERS.tex               # Síntesis crítica y verificación de artículos en LaTeX
 │   ├── RESUMEN_PAPERS.md                # Síntesis crítica de los artículos de referencia (MDPI / JSAT)
 │   ├── Chaos-Based_Image_Encryption_Review.pdf
 │   └── NPCR_and_UACI_Randomness_Tests_for_Image_Encryption.pdf

@@ -1,0 +1,209 @@
+\documentclass[11pt,letterpaper]{article}
+
+% --- Paquetes de Idioma y Tipografía ---
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% --- Configuración de Página y Márgenes ---
+\usepackage[top=2.3cm, bottom=2.3cm, left=2.3cm, right=2.3cm]{geometry}
+\usepackage{setspace}
+\setstretch{1.15}
+
+% --- Paquetes Matemáticos y Cajas ---
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage[most]{tcolorbox}
+\usepackage{booktabs}
+\usepackage{tabularx}
+
+% --- Enlaces e Hipervínculos ---
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    citecolor=blue!70!black,
+    urlcolor=blue!70!black
+}
+
+% --- Encabezados y Pies de Página ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Computación Científica --- Proyecto Grupal}
+\fancyhead[R]{\small Resumen y Verificación Bibliográfica}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Definición de estilo para cajas de artículos
+\newtcolorbox{paperbox}[2][]{
+    enhanced,
+    colback=white,
+    colframe=blue!70!black,
+    coltitle=white,
+    fonttitle=\bfseries\small,
+    title=#2,
+    boxrule=0.8pt,
+    arc=2mm,
+    top=3mm, bottom=3mm, left=3mm, right=3mm,
+    #1
+}
+
+\begin{document}
+
+\begin{center}
+    {\Large \textbf{Revisión y Resumen de la Literatura Científica}}\\[0.25cm]
+    {\large \textbf{Sistemas Dinámicos Caóticos, Exponente de Lyapunov y Criptografía de Imágenes}}\\[0.15cm]
+    \small \textbf{Curso:} Computación Científica \quad | \quad \textbf{Pontificia Universidad Javeriana Cali}
+\end{center}
+\vspace{0.3cm}
+
+\begin{tcolorbox}[colback=blue!5!white, colframe=blue!50!black, arc=1.5mm, boxrule=0.6pt]
+\small
+\textbf{Nota de Trazabilidad Bibliográfica:} Todos los artículos citados en este proyecto derivan del artículo general de revisión:
+\begin{center}
+    \textbf{Zhang, B., \& Liu, L. (2023).} \textit{Chaos-Based Image Encryption: Review, Application, and Challenges}. \\
+    \textit{Mathematics} (MDPI), 11(11), 2585. DOI: \href{https://doi.org/10.3390/math11112585}{10.3390/math11112585}.
+\end{center}
+A continuación se resume cada investigación, su verificación formal en la web y su aporte específico a nuestro código e informe.
+\end{tcolorbox}
+
+\vspace{0.2cm}
+
+% =========================================================================
+% ARTÍCULO 1: ZHANG & LIU (2023)
+% =========================================================================
+\begin{paperbox}{1. Documento Matriz: Zhang \& Liu (2023)}
+\textbf{Referencia completa:} Zhang, B., \& Liu, L. \textit{Chaos-based image encryption: review, application, and challenges}. \textit{Mathematics} (MDPI), 2023, 11(11), 2585. \\
+\textbf{DOI:} \href{https://doi.org/10.3390/math11112585}{10.3390/math11112585} \quad | \quad \textbf{Rol:} Documento base del proyecto.
+\begin{itemize}
+    \item \textbf{Problema central:} La transmisión masiva de imágenes digitales requiere algoritmos de cifrado de alta velocidad. Los estándares tradicionales (AES, RSA) son computacionalmente costosos debido a la alta correlación y redundancia espacial entre píxeles adyacentes. El caos determinista resuelve este cuello de botella mediante generadores pseudoaleatorios (PRNG) rápidos.
+    \item \textbf{Aporte al proyecto:} 
+    \begin{enumerate}
+        \item Presenta las formulaciones analíticas del \textbf{Mapa Logístico} (Ec. 1) y del \textbf{Mapa de Tienda} (Ec. 2).
+        \item Define en la \textbf{Ecuación (8)} el Exponente de Lyapunov como el indicador indispensable: $\text{LE} = \lim_{n \to \infty} \frac{1}{n} \sum_{i=0}^{n-1} \ln |F'(X_i)|$, demostrando que $\lambda > 0$ es la condición obligatoria para la seguridad criptográfica.
+        \item Expone en su Sección 4 las métricas de aleatoriedad (NPCR, UACI) y en su Sección 6 los retos de degradación digital en hardware finito.
+    \end{enumerate}
+\end{itemize}
+\end{paperbox}
+
+% =========================================================================
+% ARTÍCULO 2: LI & YORKE (1975)
+% =========================================================================
+\begin{paperbox}{2. Li \& Yorke (1975) --- [Citado en Zhang \& Liu como Ref. 2]}
+\textbf{Referencia completa:} Li, T.-Y., \& Yorke, J.~A. \textit{Period three implies chaos}. \textit{The American Mathematical Monthly}, 1975, 82(10), 985--992. \\
+\textbf{DOI:} \href{https://doi.org/10.2307/2318254}{10.2307/2318254} \quad | \quad \textbf{Indexación:} Pág. 2 y Pág. 32 (Ref. 2).
+\begin{itemize}
+    \item \textbf{Problema central:} Determinar bajo qué condiciones topológicas una transformación continua unidimensional $f: I \to I$ exhibe trayectorias intrínsecamente complejas y aperiódicas.
+    \item \textbf{Teorema fundamental:} Si $f$ posee una órbita de período 3, entonces:
+    \begin{enumerate}
+        \item Existen órbitas periódicas de cualquier longitud entera $k \ge 1$.
+        \item Existe un conjunto no numerable de condiciones iniciales cuyas trayectorias son asintóticamente aperiódicas (caóticas).
+    \end{enumerate}
+    \item \textbf{Aporte al proyecto:} Justifica matemáticamente la aparición de la \textbf{ventana periódica de período 3} en el Mapa Logístico ($r \approx 3.8284$), explicando por qué el exponente de Lyapunov cae abruptamente a valores negativos ($\lambda < 0$) dentro del mar caótico.
+\end{itemize}
+\end{paperbox}
+
+% =========================================================================
+% ARTÍCULO 3: MAY (1976)
+% =========================================================================
+\begin{paperbox}{3. May (1976) --- [Citado en Zhang \& Liu como Ref. 3]}
+\textbf{Referencia completa:} May, R.~M. \textit{Simple mathematical models with very complicated dynamics}. \textit{Nature}, 1976, 261(5560), 459--467. \\
+\textbf{DOI:} \href{https://doi.org/10.1038/261459a0}{10.1038/261459a0} \quad | \quad \textbf{Indexación:} Pág. 2 y Pág. 32 (Ref. 3).
+\begin{itemize}
+    \item \textbf{Problema central:} Modelado del crecimiento biológico limitado por capacidad de carga ambiental mediante la ecuación en diferencias de primer orden $x_{n+1} = r x_n (1 - x_n)$.
+    \item \textbf{Aporte al proyecto:} Es el artículo seminal que introdujo el \textbf{Mapa Logístico} en la literatura científica. Demuestra la transición universal desde un punto fijo estable ($x^* = 1 - 1/r$ para $1 < r \le 3$), pasando por la cascada de bifurcaciones de duplicación de período, hasta alcanzar el régimen caótico completamente desarrollado. Sustenta la clase \texttt{LogisticMap} en \texttt{src/maps.py}.
+\end{itemize}
+\end{paperbox}
+
+% =========================================================================
+% ARTÍCULO 4: AMIN ET AL. (2010)
+% =========================================================================
+\begin{paperbox}{4. Amin, Faragallah, \& Abd El-Latif (2010) --- [Citado en Zhang \& Liu como Ref. 16]}
+\textbf{Referencia completa:} Amin, M., Faragallah, O.~S., \& Abd El-Latif, A.~A. \textit{A chaotic block cipher algorithm for image cryptosystems}. \textit{Communications in Nonlinear Science and Numerical Simulation}, 2010, 15(11), 3484--3497. \\
+\textbf{DOI:} \href{https://doi.org/10.1016/j.cnsns.2009.12.016}{10.1016/j.cnsns.2009.12.016} \quad | \quad \textbf{Indexación:} Pág. 4 (Ec. 2) y Pág. 33 (Ref. 16).
+\begin{itemize}
+    \item \textbf{Problema central:} Superar las debilidades del mapa logístico (ventanas periódicas densas e inhomogeneidad) en el diseño de cifradores de bloques para imágenes médicas y de alta seguridad.
+    \item \textbf{Aporte al proyecto:} Es la referencia citada por Zhang y Liu para definir el \textbf{Mapa de Tienda (\textit{Tent Map})}:
+    \begin{equation*}
+        x_{n+1} = \begin{cases} p x_n, & x_n < 0.5 \\ p(1 - x_n), & x_n \ge 0.5 \end{cases}
+    \end{equation*}
+    Demuestra que al tener pendiente constante en valor absoluto ($|f'(x)| = p$), su exponente de Lyapunov es monótono $\lambda(p) = \ln(p)$, garantizando caos continuo sin ventanas periódicas para todo $p > 1$. Sustenta la clase \texttt{TentMap} en \texttt{src/maps.py}.
+\end{itemize}
+\end{paperbox}
+
+% =========================================================================
+% ARTÍCULO 5: WOLF ET AL. (1985)
+% =========================================================================
+\begin{paperbox}{5. Wolf, Swift, Swinney, \& Vastano (1985) --- [Citado en Zhang \& Liu como Ref. 21]}
+\textbf{Referencia completa:} Wolf, A., Swift, J.~B., Swinney, H.~L., \& Vastano, J.~A. \textit{Determining Lyapunov exponents from a time series}. \textit{Physica D: Nonlinear Phenomena}, 1985, 16(3), 285--317. \\
+\textbf{DOI:} \href{https://doi.org/10.1016/0167-2789(85)90011-9}{10.1016/0167-2789(85)90011-9} \quad | \quad \textbf{Indexación:} Pág. 6 (Ec. 8) y Pág. 33 (Ref. 21).
+\begin{itemize}
+    \item \textbf{Problema central:} Desarrollar algoritmos numéricos eficientes y estables para estimar exponentes de Lyapunov a partir de trayectorias discretas y series temporales.
+    \item \textbf{Aporte al proyecto:} Proporciona la base algorítmica para cuantificar la tasa asintótica de divergencia orbital mediante la acumulación temporal de derivadas:
+    \begin{equation*}
+        \lambda \approx \frac{1}{N} \sum_{i=0}^{N-1} \ln |f'(x_i)|
+    \end{equation*}
+    Fundamenta directamente la función \texttt{calculate\_lyapunov\_exponent} en \texttt{src/lyapunov.py}.
+\end{itemize}
+\end{paperbox}
+
+% =========================================================================
+% ARTÍCULO 6: FRIDRICH (1998)
+% =========================================================================
+\begin{paperbox}{6. Fridrich (1998) --- [Citado en Zhang \& Liu como Ref. 26]}
+\textbf{Referencia completa:} Fridrich, J. \textit{Symmetric ciphers based on two-dimensional chaotic maps}. \textit{International Journal of Bifurcation and Chaos}, 1998, 8(6), 1259--1280. \\
+\textbf{DOI:} \href{https://doi.org/10.1142/S021812749800098X}{10.1142/S021812749800098X} \quad | \quad \textbf{Indexación:} Pág. 7 y Pág. 33 (Ref. 26).
+\begin{itemize}
+    \item \textbf{Problema central:} Cómo adaptar transformaciones caóticas invertibles continuas para operar sobre arreglos discretos de píxeles sin perder propiedades de difusión.
+    \item \textbf{Aporte al proyecto:} Formuló la arquitectura universal de cifrado caótico de imágenes en dos etapas:
+    \begin{enumerate}
+        \item \textbf{Permutación espacial (\textit{Confusion}):} Desordenar las posiciones de los píxeles mediante un mapa caótico para anular la correlación local.
+        \item \textbf{Difusión de intensidades (\textit{Diffusion}):} Modificar los valores de los píxeles mediante secuencias caóticas usando operaciones XOR secuenciales, logrando que el cambio de un píxel se propague a toda la imagen.
+    \end{enumerate}
+    Esta arquitectura constituye el puente directo hacia la Segunda Entrega del proyecto.
+\end{itemize}
+\end{paperbox}
+
+% =========================================================================
+% ARTÍCULO 7: NARDO ET AL. (2019)
+% =========================================================================
+\begin{paperbox}{7. Nardo, Nepomuceno, Arias-Garcia, \& Butusov (2019) --- [Citado en Zhang \& Liu como Ref. 52]}
+\textbf{Referencia completa:} Nardo, L.~G., Nepomuceno, E.~G., Arias-Garcia, J., \& Butusov, D.~N. \textit{Image encryption using finite-precision error}. \textit{Chaos, Solitons \& Fractals}, 2019, 123, 69--78. \\
+\textbf{DOI:} \href{https://doi.org/10.1016/j.chaos.2019.03.026}{10.1016/j.chaos.2019.03.026} \quad | \quad \textbf{Indexación:} Pág. 12 y Pág. 34 (Ref. 52).
+\begin{itemize}
+    \item \textbf{Problema central:} El fenómeno de \textbf{degradación digital finita}. En computadoras bajo el estándar IEEE 754 de 64 bits (mantisa finita de 53 bits), los mapas continuos sufren de periodicidades espurias y colapso al origen.
+    \item \textbf{Aporte al proyecto:} Explica por qué en el mapa de tienda con $p=2$, la multiplicación continua equivale a un desplazamiento de bits a la izquierda (\textit{left-bit shift}) que agota los bits de la mantisa tras $\sim 53$ iteraciones. Justifica el control de perturbaciones de orden de máquina implementado en \texttt{src/lyapunov.py}.
+\end{itemize}
+\end{paperbox}
+
+% =========================================================================
+% ARTÍCULO 8: ALVAREZ & LI (2006)
+% =========================================================================
+\begin{paperbox}{8. Alvarez \& Li (2006) --- [Citado en Zhang \& Liu como Ref. 157]}
+\textbf{Referencia completa:} Alvarez, G., \& Li, S. \textit{Some basic cryptographic requirements for chaos-based cryptosystems}. \textit{International Journal of Bifurcation and Chaos}, 2006, 16(8), 2129--2151. \\
+\textbf{DOI:} \href{https://doi.org/10.1142/S0218127406015970}{10.1142/S0218127406015970} \quad | \quad \textbf{Indexación:} Pág. 26--27 y Pág. 38 (Ref. 157).
+\begin{itemize}
+    \item \textbf{Problema central:} Establecer directrices rigurosas de seguridad para la criptografía caótica, señalando vulnerabilidades graves en diseños empíricos que no consideran ataques diferenciales o espacios de clave reducidos.
+    \item \textbf{Aporte al proyecto:} Es la referencia citada en la Sección 4 de Zhang y Liu al definir las métricas de aleatoriedad y resistencia a ataques diferenciales (NPCR y UACI). Establece que una baja tasa de dispersión ($\lambda \le 0$) permite a un atacante romper el cifrado mediante análisis diferencial.
+\end{itemize}
+\end{paperbox}
+
+% =========================================================================
+% ARTÍCULO 9: WU ET AL. (2011) - ARCHIVO ADJUNTO
+% =========================================================================
+\begin{paperbox}{9. Wu, Noonan, \& Agaian (2011) --- [Artículo Complementario en docs/]}
+\textbf{Referencia completa:} Wu, Y., Noonan, J.~P., \& Agaian, S. \textit{NPCR and UACI randomness tests for image encryption}. \textit{Cyber Journals: Journal of Selected Areas in Telecommunications (JSAT)}, 2011, 1(2), 31--38. \\
+\textbf{Ubicación en el repositorio:} \texttt{docs/NPCR\_and\_UACI\_Randomness\_Tests\_for\_Image\_Encryption.pdf}.
+\begin{itemize}
+    \item \textbf{Problema central:} Modelar matemáticamente la distribución de probabilidad exacta de las métricas NPCR y UACI para imágenes de 8 bits ($F = 255$) y establecer pruebas de hipótesis estadísticas con valores críticos teóricos.
+    \item \textbf{Valores teóricos deducidos:}
+    \begin{equation*}
+        \mu_{\text{NPCR}} = \frac{F}{F+1} = \frac{255}{256} \approx 99.6094\%, \qquad \mu_{\text{UACI}} = \frac{F+2}{3F+3} = \frac{257}{768} \approx 33.4635\%
+    \end{equation*}
+    \item \textbf{Relación con Zhang \& Liu (2023):} Zhang y Liu utilizan las fórmulas de NPCR y UACI (Ecuaciones 14 y 15) fundamentadas en el marco de Álvarez y Li (2006). El documento de Wu et al. (2011) proporciona la formalización probabilística detallada que servirá como banco de pruebas para la Segunda Entrega.
+\end{itemize}
+\end{paperbox}
+
+\end{document}

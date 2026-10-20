@@ -1,0 +1,393 @@
+\documentclass[11pt,letterpaper]{article}
+
+% --- Paquetes de Idioma y Tipografía ---
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% --- Configuración de Página y Márgenes ---
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+\usepackage{setspace}
+\setstretch{1.15}
+
+% --- Paquetes Matemáticos ---
+\usepackage{amsmath, amssymb, amsfonts, mathtools}
+\usepackage{amsthm}
+
+% --- Teoremas y Definiciones ---
+\theoremstyle{definition}
+\newtheorem{definicion}{Definición}[section]
+\newtheorem{teorema}{Teorema}[section]
+\newtheorem{proposicion}{Proposición}[section]
+\newtheorem{ejemplo}{Ejemplo}[section]
+
+% --- Paquetes de Tablas y Figuras ---
+\usepackage{graphicx}
+\graphicspath{{../figures/}{figures/}}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{caption}
+\usepackage{float}
+\usepackage[most]{tcolorbox}
+
+% --- Enlaces e Hipervínculos ---
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    citecolor=blue!70!black,
+    urlcolor=blue!70!black
+}
+
+% --- Encabezados y Pies de Página ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Computación Científica --- Proyecto Grupal}
+\fancyhead[R]{\small Fundamentos Teóricos: Exponente de Lyapunov en Mapas 1D}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% --- Título ---
+\title{\vspace{-1.5cm}\textbf{\Large Fundamentos Teóricos y Modelado Matemático:}\\
+\textbf{\LARGE El Exponente de Lyapunov en Mapas Unidimensionales}\\[0.3cm]
+\large Análisis Analítico, Estabilidad Dinámica y Aplicación Criptográfica}
+\author{\textbf{Curso:} Computación Científica \\
+\textbf{Pontificia Universidad Javeriana Cali}}
+\date{Octubre de 2026}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{fancy}
+
+\begin{abstract}
+Este documento expone con rigor matemático y computacional la deducción analítica y la caracterización dinámica del \textbf{Exponente de Lyapunov} ($\lambda$) en sistemas dinámicos discretos unidimensionales. Se analiza detalladamente el comportamiento del \textbf{Mapa Logístico} ($x_{n+1} = r x_n (1 - x_n)$) y del \textbf{Modelo de Tienda (\textit{Tent Map})} ($x_{n+1} = f(x_n; p)$), demostrando analíticamente sus soluciones en puntos fijos, límites de estabilidad y regímenes de máxima ergodicidad. Asimismo, se examina el impacto de la aritmética de punto flotante de 64 bits (estándar IEEE 754) sobre la degradación digital de las órbitas caóticas y se establece el vínculo directo con los requerimientos criptográficos de dispersión y resistencia a ataques diferenciales (NPCR y UACI) revisados por Zhang y Liu (2023).
+\end{abstract}
+
+\vspace{0.3cm}
+\tableofcontents
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% =========================================================================
+% SECCIÓN 1: DEFINICIÓN FORMAL
+% =========================================================================
+\section{Definición Formal del Exponente de Lyapunov}
+
+Consideremos un sistema dinámico discreto autónomo unidimensional gobernado por una función diferenciable a trozos $f: I \to I$, donde $I \subseteq \mathbb{R}$ es un intervalo cerrado y acotado:
+\begin{equation}
+    x_{n+1} = f(x_n), \quad n \in \mathbb{N}_0
+    \label{eq:sistema_discreto}
+\end{equation}
+
+Sea $x_0$ un estado inicial y consideremos una perturbación infinitesimal $\delta_0 = \delta x_0$, tal que el estado inicial perturbado es $x_0 + \delta x_0$ con $|\delta x_0| \to 0$. Tras $n$ iteraciones sucesivas del mapa, la separación espacial entre ambas trayectorias es:
+\begin{equation}
+    \delta x_n = f^n(x_0 + \delta x_0) - f^n(x_0)
+\end{equation}
+donde $f^n$ denota la $n$-ésima composición de la función $f$ consigo misma ($f^n = f \circ f \circ \dots \circ f$).
+
+Aplicando el teorema del valor medio para funciones diferenciables:
+\begin{equation}
+    \delta x_n \approx \left[ \frac{d}{dx} f^n(x) \right]_{x=x_0} \cdot \delta x_0
+\end{equation}
+
+Por la regla de la cadena para la derivada de una función compuesta:
+\begin{equation}
+    \frac{d}{dx} f^n(x_0) = \prod_{i=0}^{n-1} f'(x_i)
+\end{equation}
+donde $x_i = f^i(x_0)$ representa el $i$-ésimo estado de la órbita. Por lo tanto, la magnitud de la separación evoluciona como:
+\begin{equation}
+    |\delta x_n| \approx \left( \prod_{i=0}^{n-1} |f'(x_i)| \right) |\delta x_0|
+    \label{eq:separacion_producto}
+\end{equation}
+
+\begin{definicion}[Exponente de Lyapunov]
+Si la tasa media de separación evoluciona asintóticamente a un ritmo exponencial medio de la forma:
+\begin{equation}
+    |\delta x_n| \approx |\delta x_0| e^{\lambda n}
+\end{equation}
+Tomando el logaritmo natural a ambos lados y normalizando por el número de iteraciones $n$, el \textbf{Exponente de Lyapunov} $\lambda(x_0)$ se define formalmente como:
+\begin{equation}
+    \lambda(x_0) = \lim_{n \to \infty} \frac{1}{n} \ln \left| \frac{\delta x_n}{\delta x_0} \right| = \lim_{n \to \infty} \frac{1}{n} \ln \left( \prod_{i=0}^{n-1} |f'(x_i)| \right)
+\end{equation}
+Aplicando las propiedades del logaritmo:
+\begin{equation}
+    \lambda(x_0) = \lim_{n \to \infty} \frac{1}{n} \sum_{i=0}^{n-1} \ln |f'(x_i)|
+    \label{eq:lyapunov_definicion}
+\end{equation}
+\end{definicion}
+
+Esta expresión matemática coincide exactamente con la \textbf{Ecuación (8)} formulada en el artículo de revisión de Zhang y Liu (2023) \cite{zhang2023} y fundamentada por Wolf et al. (1985) \cite{wolf1985}:
+\begin{equation}
+    \text{LE} = \lim_{n \to \infty} \frac{1}{n} \sum_{i=0}^{n-1} \ln |F'(X_i)|
+\end{equation}
+
+% =========================================================================
+% SECCIÓN 2: INTERPRETACIÓN FÍSICA Y DINÁMICA
+% =========================================================================
+\section{Clasificación e Interpretación Dinámica del Exponente $\lambda$}
+
+El valor numérico y el signo del exponente de Lyapunov proporcionan una clasificación completa de la dinámica orbital del sistema:
+
+\begin{table}[H]
+\centering
+\caption{Clasificación dinámica y propiedades de predictibilidad según el signo de $\lambda$.}
+\label{tab:clasificacion_lyapunov}
+\begin{tabularx}{\textwidth}{lcp{8.5cm}}
+\toprule
+\textbf{Valor de} $\boldsymbol{\lambda}$ & \textbf{Régimen Dinámico} & \textbf{Comportamiento Físico y Predictibilidad} \\
+\midrule
+$\lambda < 0$ & Punto Fijo / Ciclo Periódico & Las perturbaciones decaen exponencialmente a una tasa media $e^{\lambda n}$. Las órbitas convergen a un atractor regular. El sistema es \textbf{altamente predecible} y disipa la incertidumbre inicial. \\
+\addlinespace
+$\lambda = 0$ & Estabilidad Marginal / Bifurcación & La separación entre trayectorias es lineal o sub-exponencial. Ocurre exactamente en los puntos de transición de duplicación de período y límites de estabilidad. \\
+\addlinespace
+$\lambda > 0$ & Caos Determinista & \textbf{Sensibilidad extrema a las condiciones iniciales} (\textit{Efecto Mariposa}). Pérdida exponencial de información a razón de $\lambda$ nats por iteración. Imposibilidad de predicción a largo plazo. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Horizonte de Predictibilidad de Lyapunov}
+En un régimen caótico ($\lambda > 0$), si la incertidumbre experimental o precisión en la medición de la condición inicial es $\delta_0$, y la tolerancia máxima de error antes de que la predicción falle por completo es $\Delta$, el \textbf{horizonte temporal de predictibilidad} $T_{\text{horizon}}$ está acotado por:
+\begin{equation}
+    \Delta \approx \delta_0 e^{\lambda T_{\text{horizon}}} \implies T_{\text{horizon}} \sim \frac{1}{\lambda} \ln \left( \frac{\Delta}{\delta_0} \right)
+\end{equation}
+Esto demuestra cuantitativamente que multiplicar la precisión inicial por un factor de 1000 únicamente prolonga el horizonte predictivo en un factor aditivo $\frac{\ln(1000)}{\lambda} \approx \frac{6.9}{\lambda}$, evidenciando la futilidad del pronóstico determinista a largo plazo en sistemas caóticos.
+
+% =========================================================================
+% SECCIÓN 3: MAPA LOGÍSTICO
+% =========================================================================
+\section{Modelo 1: El Mapa Logístico}
+
+\subsection{Definición y Derivada}
+El mapa logístico, propuesto en dinámica de poblaciones por Robert May (1976) \cite{may1976}, se define como:
+\begin{equation}
+    x_{n+1} = f(x_n; r) = r x_n (1 - x_n), \quad x_n \in [0, 1], \quad r \in [0, 4]
+\end{equation}
+donde $r$ actúa como parámetro de control. Su derivada analítica es:
+\begin{equation}
+    f'(x; r) = r (1 - 2x)
+\end{equation}
+
+\subsection{Deducción de Soluciones Analíticas}
+
+\subsubsection{1. Régimen de Extinción ($0 \le r < 1$)}
+El único punto fijo en $[0, 1]$ es $x^* = 0$. La derivada evaluada en el origen es:
+\begin{equation}
+    f'(0) = r \implies \lambda(r) = \ln(r) < 0
+\end{equation}
+Toda trayectoria converge asintóticamente a cero.
+
+\subsubsection{2. Punto Fijo Estable ($1 < r \le 3$)}
+Para $r > 1$, surge un punto fijo no trivial al resolver $f(x^*) = x^*$:
+\begin{equation}
+    r x^* (1 - x^*) = x^* \implies r (1 - x^*) = 1 \implies x^* = 1 - \frac{1}{r}
+\end{equation}
+Evaluando la derivada analítica en el punto fijo:
+\begin{equation}
+    f'(x^*) = r \left( 1 - 2\left(1 - \frac{1}{r}\right) \right) = r \left( -1 + \frac{2}{r} \right) = 2 - r
+\end{equation}
+Dado que el atractor consta de un único punto estático, la suma en la ecuación (\ref{eq:lyapunov_definicion}) colapsa a la evaluación en $x^*$:
+\begin{equation}
+    \lambda(r) = \ln |f'(x^*)| = \ln |2 - r|
+    \label{eq:lambda_logistico_punto_fijo}
+\end{equation}
+\begin{itemize}
+    \item Para $r = 2$: $x^* = 0.5 \implies f'(0.5) = 0 \implies \lambda(2) = \ln(0) = -\infty$. Este punto se denomina \textbf{punto superestable}, donde la convergencia es cuadrática localmente.
+    \item Para $r = 3$: $\lambda(3) = \ln|2 - 3| = \ln(1) = 0$. Marca el límite de estabilidad del punto fijo y el inicio de la cascada de duplicación de período.
+\end{itemize}
+
+\subsubsection{3. Cascada de Feigenbaum y Ventana de Li-Yorke}
+Para $r \in (3, 3.5699456\dots]$, el sistema genera ciclos de período $2, 4, 8, 16, \dots$. Las bifurcaciones sucesivas $r_k$ satisfacen la constante universal de Feigenbaum:
+\begin{equation}
+    \delta = \lim_{k \to \infty} \frac{r_k - r_{k-1}}{r_{k+1} - r_k} \approx 4.6692016\dots
+\end{equation}
+En el punto de acumulación $r_\infty \approx 3.5699456$, el sistema entra en régimen caótico con $\lambda > 0$.
+
+Sin embargo, el caos del mapa logístico está densamente intercalado por \textbf{ventanas periódicas}. La más notable es la ventana de período 3 que surge en $r \approx 3.8284$. Según el célebre teorema de Li y Yorke (1975) \cite{li1975}:
+\begin{equation*}
+    \text{Existencia de un ciclo de período 3} \implies \text{Existencia de ciclos de todo período y comportamiento caótico}.
+\end{equation*}
+En esta ventana, la derivada promedio es contractiva ($|\prod f'(x_i)| < 1$), por lo que el exponente de Lyapunov cae abruptamente a $\lambda < 0$.
+
+\subsubsection{4. Caos Total en $r = 4.0$}
+En $r = 4.0$, el atractor ocupa todo el intervalo $[0, 1]$. La densidad de probabilidad invariante ergódica de Ulam y von Neumann es:
+\begin{equation}
+    \rho(x) = \frac{1}{\pi \sqrt{x(1 - x)}}
+\end{equation}
+Por el teorema ergódico de Birkhoff, el promedio temporal coincide con el promedio espacial sobre la medida invariante:
+\begin{equation}
+    \lambda(4.0) = \int_0^1 \ln |4(1 - 2x)| \frac{1}{\pi \sqrt{x(1 - x)}} \, dx
+\end{equation}
+Efectuando el cambio de variable trigonométrico $x = \sin^2(\theta)$ con $\theta \in [0, \pi/2]$:
+\begin{align}
+    dx &= 2 \sin(\theta)\cos(\theta) \, d\theta \\
+    \sqrt{x(1-x)} &= \sin(\theta)\cos(\theta) \\
+    4(1 - 2x) &= 4(1 - 2\sin^2\theta) = 4\cos(2\theta)
+\end{align}
+Sustituyendo en la integral:
+\begin{equation}
+    \lambda(4.0) = \frac{1}{\pi} \int_0^{\pi/2} \ln|4\cos(2\theta)| \frac{2\sin\theta\cos\theta}{\sin\theta\cos\theta} \, d\theta = \frac{2}{\pi} \int_0^{\pi/2} \left[ \ln(4) + \ln|\cos(2\theta)| \right] d\theta
+\end{equation}
+Dado que $\int_0^{\pi/2} \ln|\cos(2\theta)| \, d\theta = -\frac{\pi}{2} \ln(2)$:
+\begin{equation}
+    \lambda(4.0) = \frac{2}{\pi} \left[ \frac{\pi}{2} \ln(4) - \frac{\pi}{2} \ln(2) \right] = \ln(4) - \ln(2) = \ln(2) \approx 0.69314718\dots
+    \label{eq:lambda_logistico_caos}
+\end{equation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{logistic_lyapunov.png}
+    \caption{Espectro numérico del Exponente de Lyapunov del Mapa Logístico $\lambda(r)$ calculado con \texttt{src/visualizer.py}, ilustrando la región de punto fijo $\ln|2-r|$, el caos pleno en $r=4$ ($\lambda = \ln 2$), y la ventana periódica de Li-Yorke en $r \approx 3.8284$.}
+    \label{fig:teoria_logistic}
+\end{figure}
+
+% =========================================================================
+% SECCIÓN 4: MODELO DE TIENDA
+% =========================================================================
+\section{Modelo 2: El Modelo de Tienda (Tent Map)}
+
+\subsection{Definición y Derivada}
+El mapa de tienda, formulado en criptografía por Amin et al. (2010) \cite{amin2010} y revisado por Zhang y Liu (2023) \cite{zhang2023}, es una transformación lineal por tramos:
+\begin{equation}
+    x_{n+1} = f(x_n; p) = \begin{cases} p x_n, & x_n < \frac{1}{2} \\ p(1 - x_n), & x_n \ge \frac{1}{2} \end{cases}, \quad x_n \in [0, 1], \quad p \in [0, 2]
+\end{equation}
+Su derivada analítica para $x \neq 0.5$ es constante a trozos:
+\begin{equation}
+    f'(x; p) = \begin{cases} p, & x < 0.5 \\ -p, & x > 0.5 \end{cases} \implies |f'(x; p)| = p \quad (\forall x \neq 0.5)
+\end{equation}
+
+\subsection{Cálculo Exacto del Exponente de Lyapunov}
+Dado que $|f'(x_i)| = p$ en casi todo punto de cualquier órbita ergódica:
+\begin{equation}
+    \lambda(p) = \lim_{n \to \infty} \frac{1}{n} \sum_{i=0}^{n-1} \ln(p) = \ln(p)
+    \label{eq:lambda_tent_exacto}
+\end{equation}
+Esta deducción demuestra que $\lambda(p)$ posee una forma cerrada analítica continua y monótona:
+\begin{itemize}
+    \item Si $0 < p < 1$: $\lambda = \ln(p) < 0$ (Contracción global hacia el atractor trivial $x^* = 0$).
+    \item Si $p = 1$: $\lambda = \ln(1) = 0$ (Frontera neutral de estabilidad).
+    \item Si $1 < p \le 2$: $\lambda = \ln(p) > 0$ (\textbf{Caos determinista continuo sin ventanas periódicas}).
+    \item Si $p = 2$: $\lambda = \ln(2) \approx 0.69314718\dots$ (Caos con soporte total en $[0, 1]$ y distribución uniforme $\rho(x) = 1$).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{tent_lyapunov.png}
+    \caption{Espectro numérico del Exponente de Lyapunov del Mapa de Tienda $\lambda(p)$. La curva analítica $\ln(p)$ y los puntos calculados numéricamente coinciden con precisión de máquina.}
+    \label{fig:teoria_tent}
+\end{figure}
+
+\subsection{Degradación Digital en Aritmética de Punto Flotante (IEEE 754)}
+En hardware digital bajo el estándar IEEE 754 de 64 bits (doble precisión con 53 bits de mantisa), multiplicar por $p=2$ equivale estrictamente a un desplazamiento de bits a la izquierda (\textit{left-bit shift}):
+\begin{equation}
+    x_{n+1} = (2 \cdot x_n) \pmod 1
+\end{equation}
+Cada iteración expulsa el bit más significativo de la mantisa binaria. Por consiguiente, tras un máximo de 53 iteraciones, cualquier flotante normalizado agota sus bits significativos y colapsa numéricamente a $0.0$. 
+
+Este fenómeno, investigado exhaustivamente por Nardo, Nepomuceno et al. (2019) \cite{nardo2019} y revisado por Zhang y Liu (2023) \cite{zhang2023}, demuestra que en computación científica no se puede asumir ciegamente la teoría continua. En la implementación de \texttt{src/lyapunov.py}, este colapso se previene detectando si el estado alcanza valores singulares ($x = 0.5$ o $x = 0.0$) e inyectando perturbaciones de orden de precisión de máquina ($10^{-5}$ a $10^{-6}$).
+
+% =========================================================================
+% SECCIÓN 5: COMPARACIÓN DE ESPECTROS
+% =========================================================================
+\section{Comparación de los Espectros de Lyapunov}
+
+La Figura \ref{fig:teoria_comparacion} muestra la comparación simultánea entre el Mapa Logístico y el Mapa de Tienda:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{lyapunov_comparison_logistic_vs_tent.png}
+    \caption{Comparación directa entre los espectros de Lyapunov del Mapa Logístico y del Mapa de Tienda.}
+    \label{fig:teoria_comparacion}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Diferencias estructurales entre el Mapa Logístico y el Mapa de Tienda.}
+\label{tab:comparacion_modelos}
+\small
+\begin{tabularx}{\textwidth}{lp{6cm}p{6cm}}
+\toprule
+\textbf{Característica} & \textbf{Mapa Logístico ($r=4$)} & \textbf{Modelo de Tienda ($p=2$)} \\
+\midrule
+Naturaleza & No lineal suave (cuadrática) & Lineal a trozos \\
+Exponente Máximo & $\lambda = \ln(2) \approx 0.69315$ & $\lambda = \ln(2) \approx 0.69315$ \\
+Densidad Invariante $\rho(x)$ & $\frac{1}{\pi \sqrt{x(1-x)}}$ (Concentrada en extremos) & $1.0$ (Uniforme en $[0, 1]$) \\
+Ventanas Periódicas & Infinitas dentro del intervalo caótico & Ausentes en todo el rango caótico ($p > 1$) \\
+Cálculo de Derivada & Fluctuante ($|f'(x)| \in [0, 4]$) & Constante casi en todo punto ($|f'(x)| = p$) \\
+Idoneidad Criptográfica & Vulnerable a caídas en ventanas periódicas & Robusto, homogéneo y de bajo costo \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% =========================================================================
+% SECCIÓN 6: APLICACIÓN EN CRIPTOGRAFÍA
+% =========================================================================
+\section{Conexión con la Criptografía de Imágenes y Pruebas NPCR/UACI}
+
+\subsection{Generadores Pseudoaleatorios (PRNG) y Sensibilidad a la Clave}
+En la revisión de Zhang y Liu (2023) \cite{zhang2023}, los sistemas caóticos discretos actúan como el núcleo generador de llaves dentro de la arquitectura de Fridrich (1998) \cite{fridrich1998}:
+\begin{enumerate}
+    \item \textbf{Permutación Espacial:} Las secuencias caóticas ordenan los índices de las matrices de píxeles, eliminando la correlación entre píxeles adyacentes.
+    \item \textbf{Difusión:} Las secuencias generadas se cuantifican a enteros de 8 bits ($[0, 255]$) y se operan mediante XOR con los píxeles de la imagen.
+\end{enumerate}
+
+Un $\lambda > 0$ elevado asegura que dos claves criptográficas que difieran en un solo bit (por ejemplo, $|k_1 - k_2| = 10^{-16}$) generen flujos de clave completamente ortogonales tras un corto número de iteraciones.
+
+\subsection{Pruebas Estadísticas de Resistencia a Ataques Diferenciales (NPCR y UACI)}
+Alvarez y Li (2006) \cite{alvarez2006} y Wu et al. (2011) formalizaron las pruebas estadísticas para evaluar si un cifrador resiste ataques diferenciales:
+\begin{itemize}
+    \item \textbf{NPCR (\textit{Number of Changing Pixel Rate}):}
+    \begin{equation}
+        \text{NPCR}(C_1, C_2) = \frac{1}{T} \sum_{i,j} D(i,j) \times 100\%
+    \end{equation}
+    donde $D(i,j) = 1$ si $C_1(i,j) \neq C_2(i,j)$ y $0$ en caso contrario. Para imágenes de 8 bits con nivel máximo $F = 255$:
+    \begin{equation}
+        \mu_{\text{NPCR}} = \frac{F}{F+1} = \frac{255}{256} \approx 99.6094\%
+    \end{equation}
+    \item \textbf{UACI (\textit{Unified Averaged Changed Intensity}):}
+    \begin{equation}
+        \text{UACI}(C_1, C_2) = \frac{1}{F \cdot T} \sum_{i,j} |C_1(i,j) - C_2(i,j)| \times 100\%
+    \end{equation}
+    con valor esperado teórico:
+    \begin{equation}
+        \mu_{\text{UACI}} = \frac{F+2}{3F+3} = \frac{257}{768} \approx 33.4635\%
+    \end{equation}
+\end{itemize}
+
+Si el generador caótico posee $\lambda \le 0$, las secuencias colapsan a órbitas periódicas predecibles, provocando que el algoritmo falle las pruebas estadísticas de NPCR y UACI. Por el contrario, un $\lambda > 0$ continuo como el del Mapa de Tienda asegura una difusión óptima, garantizando la viabilidad del criptosistema para la Segunda Entrega.
+
+% =========================================================================
+% REFERENCIAS BIBLIOGRÁFICAS
+% =========================================================================
+\newpage
+\begin{thebibliography}{99}
+\bibitem{zhang2023}
+B.~Zhang y L.~Liu, ``Chaos-based image encryption: review, application, and challenges,'' \textit{Mathematics}, vol.~11, no.~11, p.~2585, 2023.
+
+\bibitem{li1975} 
+T.-Y.~Li y J.~A.~Yorke, ``Period three implies chaos,'' \textit{The American Mathematical Monthly}, vol.~82, no.~10, pp.~985--992, 1975. [Citado en Zhang \& Liu como Ref. 2].
+
+\bibitem{may1976} 
+R.~M.~May, ``Simple mathematical models with very complicated dynamics,'' \textit{Nature}, vol.~261, no.~5560, pp.~459--467, 1976. [Citado en Zhang \& Liu como Ref. 3].
+
+\bibitem{amin2010}
+M.~Amin, O.~S.~Faragallah y A.~A.~Abd El-Latif, ``A chaotic block cipher algorithm for image cryptosystems,'' \textit{Communications in Nonlinear Science and Numerical Simulation}, vol.~15, no.~11, pp.~3484--3497, 2010. [Citado en Zhang \& Liu como Ref. 16].
+
+\bibitem{wolf1985}
+A.~Wolf, J.~B.~Swift, H.~L.~Swinney y J.~A.~Vastano, ``Determining Lyapunov exponents from a time series,'' \textit{Physica D: Nonlinear Phenomena}, vol.~16, no.~3, pp.~285--317, 1985. [Citado en Zhang \& Liu como Ref. 21].
+
+\bibitem{fridrich1998}
+J.~Fridrich, ``Symmetric ciphers based on two-dimensional chaotic maps,'' \textit{International Journal of Bifurcation and Chaos}, vol.~8, no.~6, pp.~1259--1280, 1998. [Citado en Zhang \& Liu como Ref. 26].
+
+\bibitem{nardo2019}
+L.~G.~Nardo, E.~G.~Nepomuceno, J.~Arias-Garcia y D.~N.~Butusov, ``Image encryption using finite-precision error,'' \textit{Chaos, Solitons \& Fractals}, vol.~123, pp.~69--78, 2019. [Citado en Zhang \& Liu como Ref. 52].
+
+\bibitem{alvarez2006}
+G.~Alvarez y S.~Li, ``Some basic cryptographic requirements for chaos-based cryptosystems,'' \textit{International Journal of Bifurcation and Chaos}, vol.~16, no.~8, pp.~2129--2151, 2006. [Citado en Zhang \& Liu como Ref. 157].
+\end{thebibliography}
+
+\end{document}
