@@ -40,79 +40,87 @@
 \begin{document}
 
 \begin{center}
-    {\Large \textbf{Guía Maestra de Preparación para la Sustentación Individual}}\\[0.15cm]
-    {\large \textbf{Primera Entrega de Proyecto: Exponente de Lyapunov en Mapas 1D}}\\[0.1cm]
+    {\Large \textbf{Guía Maestra de Sustentación: Caos 1D y Cifrado de Imágenes}}\\[0.15cm]
+    {\large \textbf{Primera Entrega de Proyecto: Coeficiente de Lyapunov y Criptosistema de Amin et al. (2010)}}\\[0.1cm]
     \small \textbf{Modalidad:} 12 minutos por grupo. Preguntas individuales directas del profesor Juan Fernando Paz. \\
-    \textbf{Regla de oro:} Responder de forma rápida, simple, intuitiva y conceptualmente sólida.
+    \textbf{Directriz principal:} Respuestas sobrias, directas, matemáticas y concisas.
 \end{center}
 \vspace{0.2cm}
 
-\begin{pregunta}{1. En palabras muy sencillas, ¿qué es el caos y qué mide el Exponente de Lyapunov?}
-\textbf{Respuesta intuitiva (Modelo mental para el póster):}
+\begin{pregunta}{1. En palabras muy sencillas, ¿qué es el caos determinista y qué mide el Coeficiente de Lyapunov?}
+\textbf{Respuesta clave:}
 \begin{itemize}
-    \item \textbf{Caos:} No es azar ni ruido; es una fórmula matemática determinista exacta cuya trayectoria se vuelve impredecible porque cualquier error o diferencia inicial microscópica crece exponencialmente.
-    \item \textbf{Exponente de Lyapunov ($\lambda$):} Es el «termómetro cuantitativo» del caos. Si imaginamos dos puntos casi idénticos separados por $\delta_0$, en cada iteración la distancia se multiplica por un factor de estiramiento (la derivada local $|f'(x)|$). $\lambda$ mide la tasa promedio de ese estiramiento:
+    \item \textbf{Caos determinista:} Es la dinámica aperiódica generada por una ecuación matemática determinista exacta (no azar ni ruido) cuya evolución a largo plazo es imposible de predecir debido a la hipersensibilidad a las condiciones iniciales.
+    \item \textbf{Coeficiente de Lyapunov ($\lambda$):} Es la medida cuantitativa de la tasa media exponencial a la que dos trayectorias que partieron infinitesimalmente cercanas ($\delta_0$) se separan con el tiempo ($\delta_N \approx \delta_0 e^{\lambda N}$):
     \begin{itemize}
-        \item Si $\lambda < 0$: Las trayectorias se atraen y se comprimen hacia un punto fijo (predecible).
-        \item Si $\lambda = 0$: Neutro, separación lineal (borde de transición).
-        \item Si $\lambda > 0$: Caos puro. Las trayectorias se separan exponencialmente ($e^{\lambda n}$). Entre mayor sea $\lambda$, más rápido se pierde la capacidad de predecir el futuro.
+        \item Si $\lambda < 0$: Régimen estable/periódico. Las trayectorias se atraen a un punto fijo u órbita periódica.
+        \item Si $\lambda = 0$: Régimen neutro o frontera de bifurcación.
+        \item Si $\lambda > 0$: Régimen caótico. Las trayectorias divergen exponencialmente.
     \end{itemize}
 \end{itemize}
 \end{pregunta}
 
-\begin{pregunta}{2. ¿Cómo se conecta este proyecto directamente con lo visto en las clases del curso?}
-\textbf{Respuesta clave (Puntos del programa de clase):}
+\begin{pregunta}{2. ¿Por qué se eligió el Coeficiente de Lyapunov frente a otros métodos de análisis caótico?}
+\textbf{Respuesta clave (Zhang \& Liu, 2023, Sección 2.2.2):}  
+En la literatura existen otros indicadores (Entropía de Shannon, Dimensión Fractal, Diagramas de Bifurcación o Test 0-1). Se eligió el Coeficiente de Lyapunov porque:
 \begin{enumerate}
-    \item \textbf{Método del Punto Fijo (\textit{Clase: Punto Fijo}):} En clase vimos la iteración $x_{n+1} = g(x_n)$ y demostramos con el Teorema del Valor Medio que el error evoluciona como $e_{n+1} \approx g'(\xi_n) e_n$. Si $|g'(x^*)| < 1$, el método converge. En un mapa caótico, se tiene iteración sucesiva $x_{n+1} = f(x_n)$ pero con un promedio $|f'(x)| > 1$. ¡El exponente de Lyapunov $\lambda = \frac{1}{N} \sum \ln |f'(x_i)|$ es literalmente el promedio del factor de amplificación de error que analizamos en la iteración de punto fijo!
-    \item \textbf{Aritmética IEEE 754 y Épsilon de Máquina (\textit{Clase 2}):} En clase estudiamos $\varepsilon_{\text{mach}} \approx 2.22 \times 10^{-16}$. En un sistema caótico ($\lambda > 0$), este error de redondeo inicial se amplifica por $e^{\lambda n}$, haciendo que dos simulaciones en computadoras con ligeras diferencias diverjan totalmente tras unas 50 iteraciones (degradación digital).
-    \item \textbf{Valores Propios y Singulares (\textit{Clases: Autovalores y SVD}):} Los valores singulares miden cuánto estira o contrae una transformación matricial el espacio. En mapas 1D, la derivada $|f'(x)|$ es el factor de estiramiento instantáneo y $\lambda$ es su tasa asintótica acumulada.
+    \item En mapas 1D mide directamente la tasa de divergencia orbital mediante la derivada local ($\ln|f'(x)|$).
+    \item Se conecta directamente con el método de iteración de punto fijo visto en clase ($e_{n+1} \approx g'(\xi_n)e_n$).
+    \item Posee deducciones analíticas exactas ($\lambda = \ln(p)$ y $\lambda = \ln(2)$) que permiten validar cuantitativamente el error de nuestro algoritmo numérico en Python.
 \end{enumerate}
 \end{pregunta}
 
-\begin{pregunta}{3. ¿Por qué el Exponente de Lyapunov es el único método para verificar qué tan caótico es un sistema?}
-\textbf{Respuesta clave:}  
-Porque la simple inspección visual de una gráfica o de una serie de números es engañosa: un sistema puede verse desordenado pero ser simplemente un ciclo periódico muy largo. El exponente de Lyapunov es la única métrica matemática rigurosa que calcula la tasa exponencial de divergencia entre órbitas vecinas. Si $\lambda > 0$, matemáticamente existe hipersensibilidad a las condiciones iniciales, lo que certifica la presencia indiscutible de caos determinista.
+\begin{pregunta}{3. ¿Cómo se conecta este proyecto directamente con lo visto en las clases del curso?}
+\textbf{Respuesta clave:}
+\begin{enumerate}
+    \item \textbf{Método del Punto Fijo (\textit{Clase: Punto Fijo}):} En clase demostramos que para la iteración $x_{n+1} = g(x_n)$, el error evoluciona por el Teorema del Valor Medio como $e_{n+1} \approx g'(\xi_n) e_n$. Si $|g'(x^*)| < 1$, el método converge. En un mapa caótico ocurre lo inverso: en promedio $|f'(x)| > 1$, amplificando continuamente el error. El Coeficiente de Lyapunov $\lambda = \frac{1}{N} \sum \ln |f'(x_i)|$ es el promedio logarítmico de este factor de amplificación.
+    \item \textbf{Estabilidad Numérica en Computación Científica (\textit{Clase 2}):} Evitamos el colapso numérico aplicando sumas logarítmicas (prevención de \textit{overflow/underflow}) y una salvaguarda numérica $\varepsilon = 10^{-14}$ para evitar indeterminaciones $\ln(0)$.
+    \item \textbf{Autovalores y Valores Singulares (\textit{Clases: Autovalores y SVD}):} Los valores singulares miden el factor de estiramiento geométrico de una transformación. En una dimensión, la derivada escalar $|f'(x)|$ actúa como el factor de estiramiento instantáneo de la recta real.
+\end{enumerate}
 \end{pregunta}
 
 \begin{pregunta}{4. ¿Cómo se calcularon las soluciones analíticas exactas para validar el código?}
 \textbf{Respuesta clave:}
 \begin{itemize}
-    \item \textbf{Mapa de Tienda:} La pendiente es $|f'(x)| = p$ casi en todas partes ($x \neq 0.5$). Al aplicar la fórmula $\lambda = \frac{1}{N} \sum \ln |f'(x_i)| = \frac{1}{N} \sum \ln(p) = \ln(p)$ de forma exacta.
-    \item \textbf{Mapa Logístico en Punto Fijo ($1 < r \le 3$):} El atractor es $x^* = 1 - 1/r$. Al evaluar la derivada $f'(x^*) = r(1 - 2x^*) = 2 - r$, obtenemos $\lambda = \ln|2 - r|$.
-    \item \textbf{Mapa Logístico en Caos Total ($r=4$):} Integrando contra la densidad de probabilidad $\rho(x) = \frac{1}{\pi\sqrt{x(1-x)}}$, el valor exacto es $\ln(2) \approx 0.693147$.
+    \item \textbf{Mapa de Tienda:} Su pendiente es constante en magnitud $|f'(x)| = p$ para casi todo $x$. Sustituyendo en la fórmula: $\lambda(p) = \frac{1}{N} \sum \ln(p) = \ln(p)$. Para $p=2.0$, $\lambda = \ln(2) \approx 0.693147$.
+    \item \textbf{Mapa Logístico en Punto Fijo ($1 < r \le 3$):} El atractor es $x^* = 1 - 1/r$. La derivada allí es $f'(x^*) = 2 - r$, obteniendo la solución analítica $\lambda(r) = \ln|2 - r|$.
+    \item \textbf{Mapa Logístico en Caos Total ($r=4$):} Mediante la integral sobre la densidad invariante $\rho(x) = \frac{1}{\pi\sqrt{x(1-x)}}$, el valor exacto es $\lambda = \ln(2) \approx 0.693147$.
 \end{itemize}
 \end{pregunta}
 
-\begin{pregunta}{5. ¿Qué diferencias principales observaron al graficar los espectros de ambos mapas?}
+\begin{pregunta}{5. ¿Por qué el Mapa de Tienda es superior al Mapa Logístico para aplicaciones prácticas y criptográficas?}
 \textbf{Respuesta clave:}  
+Porque el Mapa Logístico presenta un comportamiento no monótono: dentro de su zona caótica contiene ventanas periódicas donde $\lambda$ se vuelve negativo (por ejemplo, la ventana de período 3 de Li-Yorke en $r \approx 3.83$). Si se selecciona un parámetro dentro de esa ventana, el caos colapsa. En cambio, el Mapa de Tienda tiene un crecimiento estrictamente monótono y continuo $\lambda(p) = \ln(p)$, garantizando caos pleno para cualquier $p > 1$.
+\end{pregunta}
+
+\begin{pregunta}{6. ¿Cómo implementaron el algoritmo numérico en Python y qué precauciones tomaron?}
+\textbf{Respuesta clave (\texttt{src/lyapunov.py}):}  
+\begin{enumerate}
+    \item \textbf{Descarte de Transitorio ($N_{\text{trans}} = 500$):} Permite que la órbita olvide la condición inicial y caiga en el atractor real (Anexo A.1).
+    \item \textbf{Salvaguarda contra $\ln(0)$ ($\varepsilon = 10^{-14}$):} Cota inferior $\max(|f'(x)|, \varepsilon)$ para evitar indeterminaciones matemáticas si la derivada pasa cerca de cero (Anexo A.2).
+    \item \textbf{Suma Logarítmica:} Sumamos logaritmos en lugar de multiplicar derivadas para evitar \textit{overflow} o \textit{underflow} (Anexo A.3).
+\end{enumerate}
+\end{pregunta}
+
+\begin{pregunta}{7. ¿Cómo funciona el algoritmo de cifrado de Amin et al. (2010) y qué mide la Fidelidad de Descifrado?}
+\textbf{Respuesta clave (\texttt{src/cipher.py}):}  
+Es un criptosistema simétrico para imágenes basado en el Mapa de Tienda ($p=2.0$):
+\begin{enumerate}
+    \item \textbf{Keystream:} Genera una secuencia caótica $X$ y una secuencia de bytes $S_i = \lfloor |x_i| \cdot 10^{14} \rfloor \pmod{256}$.
+    \item \textbf{Permutación (Confusión):} Reordena las posiciones de los píxeles según $\operatorname{argsort}(X)$.
+    \item \textbf{Difusión XOR Encadenada:} Aplica la relación $C_i = P'_i \oplus S_i \oplus C_{i-1}$ con $C_{-1} = \text{IV} = 105$.
+    \item \textbf{Fidelidad de Descifrado:} El descifrado invierte exactamente la difusión y la permutación, garantizando recuperación matemática exacta con $\text{MSE} = 0.0$ (cero pérdida de información).
+\end{enumerate}
+\end{pregunta}
+
+\begin{pregunta}{8. ¿Qué demuestran las métricas NPCR y UACI de Sensibilidad a la Clave?}
+\textbf{Respuesta clave:}  
+Evalúan la dispersión del cifrado al variar la clave nominal $x_0$ en tan solo un micro-épsilon $\varepsilon = 10^{-14}$:
 \begin{itemize}
-    \item El \textbf{Mapa Logístico} tiene un espectro muy irregular: pasa de punto fijo ($\lambda < 0$) a duplicaciones de período y finalmente a caos, pero en medio del caos sufre caídas abruptas a $\lambda < 0$ («ventanas periódicas», como la ventana de período 3 de Li-Yorke en $r \approx 3.83$).
-    \item El \textbf{Mapa de Tienda} tiene un espectro suave, continuo y monótonamente creciente $\lambda(p) = \ln(p)$. No tiene ninguna ventana periódica. Para cualquier $p > 1$, el caos está 100\% garantizado.
+    \item \textbf{NPCR (Sensibilidad a la Clave):} Obtuvimos un **$99.57\%$** (valor teórico ideal $> 99.5\%$), demostrando que prácticamente todos los píxeles del criptograma cambian al variar la clave en $10^{-14}$.
+    \item \textbf{UACI (Sensibilidad a la Clave):} Obtuvimos un **$33.29\%$** (valor teórico ideal $\approx 33.4\%$), confirmando que la magnitud de cambio coincide con la distribución uniforme ideal.
+    \item \textbf{Tasa de fallo de descifrado:} Intentar descifrar con $x_0 + 10^{-14}$ arroja un $99.66\%$ de error en los píxeles, produciendo ruido ininteligible.
 \end{itemize}
-\end{pregunta}
-
-\begin{pregunta}{6. ¿Cómo implementaron el algoritmo en Python y cómo evitaron fallos numéricos?}
-\textbf{Respuesta clave:}  
-En el módulo \texttt{src/lyapunov.py}:
-\begin{enumerate}
-    \item \textbf{Descarte de Transitorio:} Descartamos las primeras 500 iteraciones sin sumar derivadas, para que el número inicial se «olvide» y la trayectoria caiga en el atractor real.
-    \item \textbf{Salvaguarda contra $\ln(0)$:} Si la derivada pasa cerca de cero ($|f'(x)| < 10^{-14}$), usamos $\max(|f'(x)|, 10^{-14})$ para evitar indeterminaciones por logaritmo de cero.
-    \item \textbf{Suma Logarítmica:} Sumamos logaritmos en vez de multiplicar derivadas para evitar que el número desborde (\textit{overflow}) o colapse a cero (\textit{underflow}).
-\end{enumerate}
-\end{pregunta}
-
-\begin{pregunta}{7. ¿Qué es la «degradación digital» en el mapa de tienda con $p=2$?}
-\textbf{Respuesta clave:}  
-En computadoras con estándar IEEE 754 de 64 bits, multiplicar por $p=2$ desplaza los bits de la mantisa binaria hacia la izquierda. Si el valor $x$ es una fracción binaria exacta, tras unas 50 iteraciones la mantisa se vacía de unos y se convierte exactamente en $0.0$, deteniendo el caos. En nuestro algoritmo lo resolvimos añadiendo una micro-perturbación de orden $10^{-14}$ si el número cae exactamente en $0.0$ o $0.5$.
-\end{pregunta}
-
-\begin{pregunta}{8. ¿Cuáles son los siguientes pasos hacia el póster final (Segunda Entrega)?}
-\textbf{Respuesta clave:}  
-\begin{enumerate}
-    \item Diseñar visualmente el póster sintetizando la analogía del estiramiento, los espectros gráficos de Lyapunov y el glosario para el público.
-    \item Usar el mapa de tienda como generador de números pseudoaleatorios para cifrar una imagen mediante permutación y difusión (arquitectura de Fridrich).
-    \item Validar el cifrado con las pruebas de seguridad estadística NPCR ($>99.6\%$) y UACI ($\approx 33.4\%$) de Zhang \& Liu (2023).
-\end{enumerate}
 \end{pregunta}
 
 \end{document}

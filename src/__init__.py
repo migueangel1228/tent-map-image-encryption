@@ -1,5 +1,5 @@
 """
-Módulo de inicialización: Modelos dinámicos y cálculo del Exponente de Lyapunov.
+Módulo de inicialización: Modelos dinámicos, cálculo del Coeficiente de Lyapunov y cifrado caótico 1D.
 """
 
 from .maps import LogisticMap, TentMap
@@ -10,6 +10,18 @@ from .lyapunov import (
     lyapunov_logistic_spectrum,
     lyapunov_tent_spectrum,
 )
+from .cipher import (
+    generate_keystream,
+    encrypt_image,
+    decrypt_image,
+    calculate_metrics,
+)
+from .visualizer import (
+    plot_logistic_lyapunov,
+    plot_tent_lyapunov,
+    plot_comparison,
+    plot_encryption_demo,
+)
 
 __all__ = [
     "LogisticMap",
@@ -19,4 +31,12 @@ __all__ = [
     "analytical_lyapunov_logistic_fixed_point",
     "lyapunov_logistic_spectrum",
     "lyapunov_tent_spectrum",
+    "generate_keystream",
+    "encrypt_image",
+    "decrypt_image",
+    "calculate_metrics",
+    "plot_logistic_lyapunov",
+    "plot_tent_lyapunov",
+    "plot_comparison",
+    "plot_encryption_demo",
 ]

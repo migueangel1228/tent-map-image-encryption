@@ -1,6 +1,11 @@
 """
-Script principal para ejecutar los cálculos numéricos del Exponente de Lyapunov,
-validaciones analíticas (benchmarks) y generar las figuras científicas del proyecto.
+Script principal del proyecto:
+1. Benchmarks numéricos del Coeficiente de Lyapunov vs. soluciones analíticas.
+2. Generación de figuras científicas de los barridos paramétricos lambda(r) y lambda(p).
+3. Experimento de cifrado caótico 1D (Amin et al., 2010):
+   - Fidelidad de descifrado (MSE = 0.0).
+   - Sensibilidad a la clave: NPCR y UACI.
+   - Demostración gráfica sin histograma.
 """
 
 import sys
@@ -13,10 +18,17 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from src.maps import LogisticMap, TentMap
 from src.lyapunov import calculate_lyapunov_exponent
+from src.cipher import (
+    encrypt_image,
+    decrypt_image,
+    calculate_metrics,
+)
 from src.visualizer import (
+    create_synthetic_test_image,
     plot_logistic_lyapunov,
     plot_tent_lyapunov,
     plot_comparison,
+    plot_encryption_demo,
 )
 
 
@@ -27,7 +39,7 @@ def print_banner(text: str):
 
 
 def run_numerical_benchmarks():
-    print_banner("1. BENCHMARKS NUMÉRICOS: EXPONENTE DE LYAPUNOV")
+    print_banner("1. BENCHMARKS NUMÉRICOS: COEFICIENTE DE LYAPUNOV")
 
     # Benchmark 1: Mapa Logístico en r = 4.0 (Teórico exacto: ln(2) = 0.69314718...)
     log_map_4 = LogisticMap(r=4.0)
@@ -87,35 +99,82 @@ def run_numerical_benchmarks():
 
 
 def generate_all_figures():
-    print_banner("2. GENERACIÓN DE FIGURAS CIENTÍFICAS")
+    print_banner("2. GENERACIÓN DE FIGURAS CIENTÍFICAS DE LYAPUNOV")
     t0 = time.time()
 
-    print("-> Generando figura 1: Espectro de Lyapunov - Mapa Logístico...")
+    print("-> Generando figura 1: Barrido de Lyapunov - Mapa Logístico...")
     plot_logistic_lyapunov("figures/logistic_lyapunov.png")
 
-    print("-> Generando figura 2: Espectro de Lyapunov - Mapa de Tienda...")
+    print("-> Generando figura 2: Barrido de Lyapunov - Mapa de Tienda...")
     plot_tent_lyapunov("figures/tent_lyapunov.png")
 
     print("-> Generando figura 3: Comparación Logístico vs. Tienda...")
     plot_comparison("figures/lyapunov_comparison_logistic_vs_tent.png")
 
     elapsed = time.time() - t0
-    print(f"\n[Éxito] Todas las gráficas fueron generadas en {elapsed:.2f} segundos.")
+    print(f"[Éxito] Gráficas de Lyapunov generadas en {elapsed:.2f} segundos.")
+
+
+def run_chaotic_encryption_experiment():
+    print_banner("3. EXPERIMENTO DE CIFRADO CAÓTICO 1D (Amin et al., 2010)")
+
+    # Parámetros del experimento
+    p = 2.0
+    x0 = 0.38472910542381
+    tent = TentMap(p=p)
+
+    # 1. Verificación de lambda > 0
+    lambda_tent = calculate_lyapunov_exponent(tent, x0=x0, n_transient=500, n_iterations=5000)
+    print(f"[*] Verificación del mapa 1D seleccionado (TentMap p=2.0):")
+    print(f"    - Coeficiente de Lyapunov: lambda = {lambda_tent:.6f} > 0 (Caos estricto y monótono)")
+
+    # 2. Fidelidad de Descifrado (recuperación exacta sin pérdidas)
+    img = create_synthetic_test_image(size=128)
+    cipher = encrypt_image(img, x0=x0, p=p)
+    decrypted_ok = decrypt_image(cipher, x0=x0, p=p)
+    mse_recovery = float(np.mean((img.astype(np.float64) - decrypted_ok.astype(np.float64)) ** 2))
+
+    print(f"\n[*] Fidelidad de Descifrado:")
+    print(f"    - Error Cuadrático Medio (MSE): {mse_recovery:.6f}")
+    print(f"    - Recuperación exacta sin pérdidas: {'SÍ (100% idéntica)' if mse_recovery == 0.0 else 'NO'}")
+
+    # 3. Sensibilidad a la Clave (clave perturbada por micro-épsilon = 10^-14)
+    eps_key = 1e-14
+    cipher_perturbed = encrypt_image(img, x0=x0 + eps_key, p=p)
+    metrics_key = calculate_metrics(cipher, cipher_perturbed)
+    decrypted_fail = decrypt_image(cipher, x0=x0 + eps_key, p=p)
+    pixel_fail_rate = float(np.mean(img != decrypted_fail) * 100.0)
+
+    print(f"\n[*] Sensibilidad a la Clave (x0 vs. x0 + 10^-14):")
+    print(f"    - Tasa de fallo al descifrar con clave errónea:  {pixel_fail_rate:.2f}%")
+    print(f"    - NPCR (Sensibilidad a Clave):                  {metrics_key['npcr']:.2f}% (esperado > 99.5%)")
+    print(f"    - UACI (Sensibilidad a Clave):                  {metrics_key['uaci']:.2f}% (esperado ~ 33.4%)")
+
+    # 4. Generación de figura limpia de cifrado
+    t0 = time.time()
+    print("\n-> Generando figura 4: Demostración de Cifrado (Amin et al., 2010)...")
+    plot_encryption_demo("figures/encryption_results.png")
+    elapsed = time.time() - t0
+    print(f"[Éxito] Figura de cifrado generada en {elapsed:.2f} segundos.")
 
 
 def main():
     print("=" * 70)
-    print("  COMPUTACIÓN CIENTÍFICA: CÁLCULO NUMÉRICO DEL EXPONENTE DE LYAPUNOV")
-    print("  Modelos: Mapa Logístico & Modelo de Tienda (Tent Map)")
+    print("  COMPUTACIÓN CIENTÍFICA: PRIMERA ENTREGA")
+    print("  Modelado de Caos 1D (Lyapunov) y Cifrado de Imágenes (Amin et al., 2010)")
     print("=" * 70)
 
     run_numerical_benchmarks()
     generate_all_figures()
+    run_chaotic_encryption_experiment()
 
-    print_banner("3. RESUMEN DE EJECUCIÓN")
-    print("El cálculo y renderizado finalizaron satisfactoriamente.")
-    print("Directorio de imágenes: figures/")
-    print("Directorio de documentos y referencias: docs/")
+    print_banner("4. RESUMEN DE EJECUCIÓN")
+    print("Todos los benchmarks, experimentos y figuras concluyeron exitosamente.")
+    print("Archivos generados en figures/:")
+    print("  - logistic_lyapunov.png")
+    print("  - tent_lyapunov.png")
+    print("  - lyapunov_comparison_logistic_vs_tent.png")
+    print("  - encryption_results.png")
 
 
 if __name__ == "__main__":
