@@ -1,21 +1,21 @@
 \documentclass[11pt,letterpaper]{article}
 
-% --- Paquetes de Idioma y Tipografía ---
+% --- Idioma y Tipografia ---
 \usepackage[utf8]{inputenc}
 \usepackage[spanish,es-tabla]{babel}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{microtype}
 
-% --- Configuración de Página y Márgenes ---
-\usepackage[top=2.2cm, bottom=2.2cm, left=2.3cm, right=2.3cm]{geometry}
+% --- Configuración de Página (Márgenes compactos y limpios) ---
+\usepackage[top=2.0cm, bottom=2.0cm, left=2.2cm, right=2.2cm]{geometry}
 \usepackage{setspace}
-\setstretch{1.10}
+\setstretch{1.05}
 
-% --- Paquetes Matemáticos ---
+% --- Matematicas ---
 \usepackage{amsmath, amssymb, amsfonts, mathtools}
 
-% --- Paquetes de Tablas, Figuras y Colores ---
+% --- Tablas, Figuras y Formato ---
 \usepackage{graphicx}
 \graphicspath{{../figures/}{figures/}}
 \usepackage{booktabs}
@@ -24,7 +24,12 @@
 \usepackage{float}
 \usepackage{xcolor}
 
-% --- Enlaces e Hipervínculos ---
+% Ajuste de espaciado en captions y listas para garantizar estrictamente <= 7-8 paginas
+\captionsetup{font=small,labelfont=bf,skip=5pt}
+\setlength{\parskip}{3pt}
+\setlength{\parindent}{14pt}
+
+% --- Enlaces e Hipervinculos ---
 \usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
@@ -33,43 +38,41 @@
     urlcolor=blue!70!black
 }
 
-% --- Encabezados y Pies de Página ---
+% --- Encabezados y Pies de Pagina ---
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small Computación Científica --- Primera Entrega}
-\fancyhead[R]{\small Modelado de Caos 1D y Cifrado de Imágenes}
+\fancyhead[R]{\small Caos en Mapa de Tienda y Cifrado de Imágenes}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 
 \begin{document}
 
 % =========================================================================
-% PORTADA INDEPENDIENTE (FUERA DEL LÍMITE DE PÁGINAS)
+% PORTADA INDEPENDIENTE (FUERA DEL LIMITE DE PAGINAS)
 % =========================================================================
 \begin{titlepage}
     \centering
-    \vspace*{1.2cm}
+    \vspace*{1.5cm}
     
     {\scshape\Large Pontificia Universidad Javeriana Cali \par}
     \vspace{0.4cm}
     {\scshape\large Facultad de Ingeniería y Ciencias \par}
-    {\large Departamento de Electrónica y Ciencias de la Computación \par}
-    \vspace{1.8cm}
+    {\large Programa de Ingeniería en Sistemas y en Ciencias de la Computación \par}
+    \vspace{2.0cm}
     
-    {\LARGE\bfseries Diagnóstico Numérico del Caos en Mapas 1D y Cifrado de Imágenes:\par}
-    \vspace{0.4cm}
-    {\Large\bfseries Modelado del Coeficiente de Lyapunov y Aplicación Criptográfica Directa (Amin et al., 2010)\par}
-    \vspace{1.2cm}
+    {\LARGE\bfseries Diagnóstico Numérico del Caos en el Mapa de Tienda y Cifrado de Imágenes Digitales:\par}
+    \vspace{1.5cm}
     
     {\large\textbf{Informe de Primera Entrega: Formulación y Solución del Problema}\par}
-    \vspace{2.0cm}
+    \vspace{2.2cm}
     
     \begin{minipage}{0.85\textwidth}
         \centering
         \textbf{Curso:} Computación Científica \\
         \textbf{Docente:} Juan Fernando Paz \\
-        \textbf{Autores:} Grupo de Proyecto de Computación Científica \\
+        \textbf{Autor:} Migue Angel Padilla Rosero \\
         \vspace{0.6cm}
         \textbf{Repositorio Oficial de Código en GitHub:} \\
         \small\url{https://github.com/migueangel1228/Proyecto-Computaci-n-Cientifica}
@@ -79,364 +82,287 @@
     {\large Octubre de 2026 \par}
 \end{titlepage}
 
-% El cuerpo del informe inicia en página 1 (Máximo 8 páginas)
+% Inicia conteo del cuerpo (Maximo 8 paginas para Secciones 1 a 8)
 \setcounter{page}{1}
 
 % =========================================================================
-% SECCIÓN 1: RESUMEN (RÚBRICA SECCIÓN 1)
+% 1. RESUMEN
 % =========================================================================
 \section{Resumen}
-El presente trabajo aborda el modelado matemático, la resolución computacional y la aplicación experimental de sistemas dinámicos discretos unidimensionales en el marco de la Primera Entrega del curso de Computación Científica. El problema central consiste en diagnosticar cuantitativamente el comportamiento caótico y verificar la estabilidad orbital en dos mapas fundamentales: el \textbf{Mapa Logístico} ($x_{n+1} = r x_n (1 - x_n)$) y el \textbf{Mapa de Tienda (\textit{Tent Map})}, empleando como métrica fundamental el \textbf{Coeficiente de Lyapunov ($\lambda$)}, para posteriormente aplicar esta dinámica en el algoritmo de cifrado de imágenes digitales propuesto por Amin, Faragallah y Abd El-Latif (2010).
+Este trabajo aborda el modelado matemático, la resolución computacional y la experimentación de sistemas dinámicos discretos 1D orientados a la seguridad de la información. El problema central consiste en formular un entorno algorítmico riguroso para diagnosticar el comportamiento caótico determinista en el \textbf{Mapa de Tienda (\textit{Tent Map})} mediante el cálculo del \textbf{Coeficiente de Lyapunov ($\lambda$)}, y transferir esta dinámica a un criptosistema de imágenes digitales basado en el algoritmo de Amin, Faragallah y Abd El-Latif (2010). 
 
-Los objetivos principales abarcan: (1) implementar una arquitectura modular en Python para evaluar las trayectorias y derivadas analíticas de ambos mapas; (2) diseñar e implementar un algoritmo numérico robusto para estimar $\lambda$ mediante descarte de transitorios, suma logarítmica y salvaguardas numéricas contra singularidades ($\varepsilon = 10^{-14}$); (3) validar la exactitud computacional contrastando las estimaciones numéricas contra soluciones analíticas exactas deducidas formalmente ($\lambda = \ln(p)$, $\lambda = \ln(2)$); (4) comparar los barridos paramétricos continuos $\lambda(r)$ y $\lambda(p)$ para fundamentar la selección del mapa de tienda en aplicaciones de seguridad; y (5) implementar el algoritmo de cifrado de Amin et al. (2010), evaluando la \textbf{Fidelidad de Descifrado} y la \textbf{Sensibilidad a la Clave} mediante las métricas estandarizadas \textbf{NPCR} y \textbf{UACI}.
-
-La metodología empleada integra la discretización temporal en Python/NumPy, acumulación logarítmica de factores de divergencia y pruebas criptográficas de reversibilidad y dispersión ante perturbaciones de orden $\varepsilon = 10^{-14}$. Los principales avances y resultados obtenidos confirman una concordancia analítica rigurosa con errores absolutos del orden de $10^{-14}$ en regímenes estables y de $10^{-5}$ en caos ergódico pleno. Asimismo, el criptosistema implementado demostró una \textbf{Fidelidad de Descifrado} idéntica libre de pérdidas ($\text{MSE} = 0.0$), y una extrema \textbf{Sensibilidad a la Clave} ante variaciones de apenas $10^{-14}$, arrojando un fallo de descifrado del $99.66\%$, un $\text{NPCR} = 99.57\%$ y un $\text{UACI} = 33.29\%$. Todo el código fuente del proyecto se encuentra disponible de forma pública en GitHub: \url{https://github.com/migueangel1228/Proyecto-Computaci-n-Cientifica}.
+Los objetivos abarcan: (1) modelar modularmente en Python el mapa de tienda y sus derivadas analíticas; (2) calcular numéricamente $\lambda$ con suma logarítmica y salvaguarda contra singularidades ($\varepsilon = 10^{-14}$); (3) validar la convergencia frente a la solución analítica exacta ($\lambda(p) = \ln(p)$, con $\lambda(2) = \ln(2) \approx 0.693147$); (4) justificar la exclusión del mapa logístico debido a sus ventanas de periodicidad estables (May, 1976; Li \& Yorke, 1975; Zhang \& Liu, 2023); y (5) implementar el cifrado de imágenes con permutación y difusión XOR encadenada, evaluando la \textbf{Fidelidad de Descifrado} ($\text{MSE} = 0.0$) y la \textbf{Sensibilidad a la Clave} mediante las métricas \textbf{NPCR} y \textbf{UACI} (Wu, Noonan \& Agaian, 2011). Los resultados confirman una concordancia analítica de $\lambda$ con error de $10^{-13}$, recuperación sin pérdidas ($\text{MSE} = 0.0$) y sensibilidad extrema ante perturbaciones de $10^{-14}$ ($\text{NPCR} = 99.6414\%$, $\text{UACI} = 33.4572\%$). El código fuente está disponible en GitHub: \url{https://github.com/migueangel1228/Proyecto-Computaci-n-Cientifica}.
 
 % =========================================================================
-% SECCIÓN 2: REVISIÓN BIBLIOGRÁFICA (RÚBRICA SECCIÓN 2)
+% 2. REVISIÓN BIBLIOGRÁFICA
 % =========================================================================
 \section{Revisión bibliográfica}
-El análisis formal de cómo transformaciones algebraicas simples completamente deterministas pueden producir secuencias aperiódicas complejas con apariencia de aleatoriedad se originó en los trabajos fundacionales de May (1976) \cite{may1976} y Li y Yorke (1975) \cite{li1975}. Robert May demostró en \textit{Nature} que la ecuación en diferencias cuadrática que modela el crecimiento biológico restringido (el Mapa Logístico) sufre una cascada universal de duplicaciones de período que desemboca en dinámica caótica. Paralelamente, Li y Yorke introdujeron por primera vez el término formal «caos» en la literatura matemática a través de su célebre teorema \textit{Period Three Implies Chaos}, probando que la existencia de una órbita periódica de período 3 garantiza un conjunto no numerable de condiciones iniciales cuyas trayectorias son asintóticamente aperiódicas.
+El estudio formal de sistemas deterministas no lineales capaces de generar trayectorias aperiódicas e impredecibles proviene de los trabajos de May (1976) \cite{may1976} y Li y Yorke (1975) \cite{li1975}. Robert May mostró cómo ecuaciones sencillas de población presentan cascadas de duplicación de período. Paralelamente, Li y Yorke introdujeron por primera vez el término formal «caos» mediante su teorema \textit{Period Three Implies Chaos}, demostrando que una órbita de período 3 implica la presencia de infinitas órbitas periódicas y un continuo no numerable de trayectorias caóticas.
 
-En el ámbito de la seguridad de la información y la criptografía de datos visuales, la revisión exhaustiva realizada por Zhang y Liu (2023) \cite{zhang2023} recopila el estado del arte sobre cifradores basados en caos. Zhang y Liu destacan que las imágenes digitales poseen propiedades particulares —alta redundancia espacial y grandes volúmenes de datos— que vuelven ineficientes a los criptosistemas de bloque tradicionales como AES o RSA. Frente a este desafío, los sistemas caóticos discretos proporcionan generadores de secuencias pseudoaleatorias de alta velocidad y bajo costo computacional. En su Sección 2.2.2, Zhang y Liu catalogan los indicadores empleados para diagnosticar y medir el caos, situando al Coeficiente de Lyapunov (Ecuación 8 en su texto) como la condición fundamental: un valor estrictamente positivo ($\lambda > 0$) es el requisito matemático indispensable para asegurar la dispersión exponencial requerida en criptografía.
+En el cifrado de información visual, la revisión de Zhang y Liu (2023) \cite{zhang2023} recopila el estado del arte sobre algoritmos criptográficos basados en caos. Destacan que las imágenes digitales poseen alta redundancia y fuerte correlación espacial entre píxeles adyacentes, lo cual vuelve ineficientes a los cifradores tradicionales de bloque (DES, AES). Frente a esto, los mapas caóticos discretos proporcionan generadores de secuencias pseudoaleatorias (\textit{PRNG}) rápidos y de baja complejidad de cómputo. Zhang y Liu sitúan al Coeficiente de Lyapunov como el indicador fundamental: un valor estrictamente positivo ($\lambda > 0$) es la condición matemática necesaria para asegurar la separación exponencial de órbitas.
 
-No obstante, como subrayan Zhang y Liu \cite{zhang2023}, mapas ampliamente difundidos como el logístico sufren de serias debilidades estructurales: la presencia de ventanas periódicas densas donde el comportamiento caótico colapsa súbitamente. Para resolver esta vulnerabilidad, Amin, Faragallah y Abd El-Latif (2010) \cite{amin2010} propusieron el uso del Mapa de Tienda (\textit{Tent Map}), demostrando que su derivada analítica constante a trozos asegura un régimen caótico monótono continuo. Además, Amin et al. diseñaron un algoritmo de cifrado que combina la permutación espacial con una difusión XOR encadenada con retroalimentación, garantizando alta sensibilidad y descifrado exacto.
+Para superar las ventanas periódicas del mapa logístico, Amin, Faragallah y Abd El-Latif (2010) \cite{amin2010} propusieron utilizar el Mapa de Tienda, cuya derivada constante a trozos confiere una generación de secuencias caóticas continua y uniforme. Amin et al. estructuraron el criptosistema en dos etapas: permutación espacial de píxeles mediante la secuencia caótica, y difusión XOR encadenada con retroalimentación, logrando alta velocidad y descifrado exacto. Finalmente, Wu, Noonan y Agaian (2011) \cite{wu2011} establecieron el marco estadístico formal de evaluación diferencial mediante las pruebas NPCR y UACI, derivando analíticamente los valores esperados para imágenes ideales de 8 bits: $\mu_{\text{NPCR}} = 99.6094\%$ y $\mu_{\text{UACI}} = 33.4635\%$.
 
 % =========================================================================
-% SECCIÓN 3: DISCUSIÓN DE LA LITERATURA (RÚBRICA SECCIÓN 3)
+% 3. DISCUSIÓN DE LA LITERATURA
 % =========================================================================
 \section{Discusión de la literatura}
-El análisis comparativo y crítico de las fuentes científicas analizadas revela tres discusiones metodológicas fundamentales:
+El análisis comparativo de las fuentes consultadas sustenta tres decisiones metodológicas:
 
 \begin{enumerate}
-    \item \textbf{Selección de Métricas Cuantitativas de Caos (Zhang \& Liu, 2023):}
-    En la literatura coexisten diversas herramientas para caracterizar sistemas no lineales:
-    \begin{itemize}
-        \item \textit{Entropía de la Información (Shannon):} Evalúa la uniformidad probabilística en la ocupación de estados, pero no mide la velocidad de divergencia temporal entre condiciones iniciales cercanas.
-        \item \textit{Dimensión Fractal y Dimensión de Correlación:} Cuantifican la densidad geométrica del atractor en el espacio de fases, pero conllevan un alto costo de cómputo y no ofrecen una tasa local de estiramiento orbital.
-        \item \textit{Diagramas de Bifurcación:} Brindan una perspectiva visual cualitativa del sistema, pero carecen de una formulación escalar continua que cuantifique la intensidad del régimen caótico.
-        \item \textit{Test 0-1 de Caos:} Proporciona una clasificación binaria asintótica (0 para regular, 1 para caótico), pero no evalúa la estabilidad local de las derivadas.
-    \end{itemize}
-    Frente a estas alternativas, se eligió el \textbf{Coeficiente de Lyapunov ($\lambda$)} porque mide explícitamente la tasa media de divergencia exponencial orbital ($\ln|f'(x)|$), enlaza de forma directa con la teoría de convergencia de punto fijo vista en clase, y posee soluciones analíticas exactas que permiten calcular el error numérico absoluto del software.
-
-    \item \textbf{Contraste Dinámico: Mapa Logístico frente a Mapa de Tienda:}
-    El análisis conjunto de May (1976) \cite{may1976} y Li y Yorke (1975) \cite{li1975} evidencia que la curvatura suave del mapa logístico genera fluctuaciones abruptas en su tasa de estiramiento: en medio de la zona caótica surgen ventanas periódicas (como la ventana de período 3 en $r \approx 3.83$) donde $\lambda$ se torna negativo. Si un algoritmo criptográfico opera en esos parámetros, el cifrado se vuelve predecible. En contraste, Amin et al. (2010) \cite{amin2010} demuestran que el mapa de tienda posee una derivada constante en magnitud ($|f'(x)| = p$), lo que garantiza una curva $\lambda(p) = \ln(p)$ estrictamente monótona y sin ventanas periódicas para todo $p > 1$.
-
-    \item \textbf{Ventajas de Mapas 1D y Criterios de Evaluación Criptográfica:}
-    Amin et al. (2010) \cite{amin2010} señalan que los mapas 1D ofrecen una velocidad de cómputo sustancialmente mayor y una implementación más ligera. Para evaluar rigurosamente la calidad del cifrado y la sensibilidad del algoritmo frente a la clave secreta, la literatura establece como estándares fundamentales la \textbf{Fidelidad de Descifrado} (verificando que no exista distorsión en la recuperación con clave exacta) y las pruebas de \textbf{Sensibilidad a la Clave} cuantificadas mediante el \textbf{NPCR} (porcentaje de píxeles diferentes en el criptograma) y el \textbf{UACI} (intensidad media de cambio unificado), los cuales deben aproximarse a sus límites teóricos ideales.
+    \item \textbf{Pertinencia de Lyapunov frente a otras métricas (Zhang \& Liu, 2023):} Aunque la Entropía de Shannon mide la uniformidad de la distribución y los Diagramas de Bifurcación exhiben transiciones de fase, no proveen una cuantificación escalar continua de la velocidad de separación orbital. El Coeficiente de Lyapunov ($\lambda$) mide directamente la tasa media de estiramiento local ($\ln|f'(x)|$), enlaza de forma transparente con la teoría numérica de punto fijo de clase y permite calcular el error absoluto frente a soluciones analíticas cerradas.
+    \item \textbf{Selección del Mapa de Tienda frente al Mapa Logístico:} Como demuestran May (1976) \cite{may1976}, Li y Yorke (1975) \cite{li1975} y Zhang y Liu (2023) \cite{zhang2023}, el mapa logístico presenta dos fragilidades para la criptografía: densas «ventanas periódicas estables» donde $\lambda < 0$ (notablemente la ventana de período 3 en $r \approx 3.8284$), y una densidad invariante no uniforme que agrupa los valores en los extremos. En contraste, el Mapa de Tienda con $p=2.0$ (Amin et al., 2010 \cite{amin2010}) posee magnitud de derivada constante ($|f'(x)| = 2$), garantizando $\lambda(p) = \ln(p)$ monótono, ausencia total de ventanas periódicas en $p > 1$, y distribución uniforme $U(0, 1)$.
+    \item \textbf{Criterios de Evaluación Criptográfica (Wu et al., 2011; Amin et al., 2010):} La robustez de un cifrador se evalúa mediante la Fidelidad de Descifrado ($\text{MSE} = 0.0$ con clave legítima) y la Sensibilidad a la Clave mediante las pruebas de aleatoriedad NPCR y UACI ante perturbaciones microscópicas de la semilla.
 \end{enumerate}
 
 % =========================================================================
-% SECCIÓN 4: IDENTIFICACIÓN DEL PROBLEMA (RÚBRICA SECCIÓN 4)
+% 4. IDENTIFICACIÓN DEL PROBLEMA
 % =========================================================================
 \section{Identificación del problema}
 
-\subsection{Formulación Concreta y Motivación}
-En el diseño de sistemas de computación científica y seguridad digital basados en caos, con frecuencia se asume sin suficiente verificación cuantitativa que un mapa matemático genera sensibilidad adecuada bajo cualquier configuración de parámetros. Sin un diagnóstico objetivo, un sistema puede operar inadvertidamente en atractores periódicos o regímenes contractivos.
+\subsection{Formulación Concreta y Objetivos}
+En aplicaciones basadas en caos es habitual asumir heurísticamente que una función no lineal produce aleatoriedad adecuada sin auditar numéricamente la estabilidad y tasa de estiramiento del sistema. El problema concreto consiste en \textbf{diseñar, implementar y validar un entorno numérico en Python para diagnosticar el caos en el Mapa de Tienda mediante el Coeficiente de Lyapunov}, verificando la solución analítica cerrada, y **aplicar directamente esta dinámica al cifrado y descifrado de imágenes digitales (Amin et al., 2010)**, evaluando la \textbf{Fidelidad de Descifrado} ($\text{MSE} = 0.0$) y la \textbf{Sensibilidad a la Clave} (\textbf{NPCR} y \textbf{UACI}) ante perturbaciones de la clave de magnitud $\Delta x_0 = 10^{-14}$ conforme a Wu et al. (2011).
 
-El problema concreto abordado en este trabajo radica en \textbf{formular, implementar y validar un entorno computacional riguroso para diagnosticar el caos determinista en mapas 1D mediante el Coeficiente de Lyapunov}, comparando analítica y numéricamente el Mapa Logístico y el Mapa de Tienda, y **aplicar directamente el mapa validado a un algoritmo de cifrado simétrico de imágenes digitales (Amin et al., 2010)**, evaluando cuantitativamente la \textbf{Fidelidad de Descifrado} ($\text{MSE} = 0.0$) y la \textbf{Sensibilidad a la Clave} mediante las métricas \textbf{NPCR} y \textbf{UACI} ante perturbaciones microscópicas de orden $\varepsilon = 10^{-14}$.
-
-Los objetivos específicos del proyecto son:
+Objetivos del trabajo:
 \begin{enumerate}
-    \item Implementar en Python una arquitectura modular para los mapas Logístico y de Tienda con derivadas exactas.
-    \item Implementar el algoritmo de Lyapunov con eliminación de transitorios, acotación contra indeterminaciones $\ln(0)$ y suma logarítmica.
-    \item Validar cuantitativamente la exactitud del código frente a soluciones analíticas teóricas exactas ($\lambda_{\text{exacto}}$).
-    \item Generar barridos paramétricos comparativos de $\lambda$ para justificar la selección del mapa de tienda sobre el logístico.
-    \item Implementar el criptosistema de Amin et al. (2010) y evaluar su Fidelidad de Descifrado y Sensibilidad a la Clave (NPCR y UACI).
+    \item Diseñar una arquitectura modular en Python para evaluar las órbitas y derivadas analíticas del Mapa de Tienda.
+    \item Implementar el cálculo de $\lambda$ con descarte de transitorios, suma logarítmica y salvaguardas ($\varepsilon = 10^{-14}$).
+    \item Validar numéricamente el algoritmo contra la solución analítica cerrada ($\lambda(2.0) = \ln 2 \approx 0.693147$).
+    \item Justificar la exclusión del mapa logístico debido al colapso en ventanas periódicas (Li \& Yorke, 1975).
+    \item Implementar el cifrado simétrico 1D de Amin et al. (2010) para imágenes digitales arbitrarias y evaluar MSE, NPCR y UACI.
 \end{enumerate}
 
-\subsection{Conexión Explícita y Justificación con Temas de Computación Científica}
-Este proyecto se fundamenta directamente en los temas y conceptos desarrollados en las sesiones de clase del curso:
-
+\subsection{Conexión y Justificación con Temas de Computación Científica}
 \begin{itemize}
-    \item \textbf{Método del Punto Fijo e Iteración Numérica (\textit{Clase: Método del punto fijo}):} En clase se estudió que para resolver $x = g(x)$, la sucesión $x_{n+1} = g(x_n)$ tiene un error que evoluciona por el Teorema del Valor Medio como $e_{n+1} \approx g'(\xi_n) e_n$. Para asegurar convergencia hacia un punto fijo atractor se requiere $|g'(x^*)| < 1$. En nuestro proyecto, los mapas caóticos son exactamente iteraciones de funciones $x_{n+1} = f(x_n)$ donde se aprovecha el régimen inverso: al ser en promedio $|f'(x)| > 1$, el error entre trayectorias se amplifica exponencialmente. El Coeficiente de Lyapunov $\lambda = \frac{1}{N} \sum \ln |f'(x_i)|$ es literalmente el promedio logarítmico del factor de amplificación de error analizado en la teoría de punto fijo.
-    \item \textbf{Análisis de Error y Estabilidad Numérica (\textit{Clase 2: Introducción a los métodos numéricos}):} Se abordan directamente los riesgos de desbordamiento de escala al evaluar productos sucesivos de miles de términos. Se justifica la pertinencia de la suma logarítmica para convertir multiplicaciones en sumas acumulativas y la inclusión de una salvaguarda numérica $\varepsilon = 10^{-14}$ para prevenir indeterminaciones matemáticas en singularidades donde la derivada se anula ($\ln(0)$).
-    \item \textbf{Valores Propios y Valores Singulares (\textit{Clases: Valores propios y Valores singulares}):} En álgebra lineal numérica, los valores singulares representan los factores de estiramiento o compresión que una transformación ejerce sobre el espacio. En sistemas dinámicos unidimensionales, la derivada escalar $|f'(x)|$ actúa como el factor de estiramiento instantáneo del mapa, y $\lambda$ representa la tasa geométrica asintótica de estiramiento continuo.
-    \item \textbf{Computación Vectorizada y Rendimiento (\textit{Clase 2}):} Uso de técnicas de procesamiento de arreglos continuos con NumPy para calcular en paralelo barridos de parámetros de alta resolución, optimizando los tiempos de ejecución.
+    \item \textbf{Método del Punto Fijo e Iteración Numérica (\textit{Clase: Punto fijo}):} La sucesión $x_{n+1} = g(x_n)$ propaga el error como $e_{n+1} \approx g'(\xi_n)e_n$. Para converger a un atractor se exige $|g'| < 1$. En caos se aprovecha el régimen dinámico opuesto: al ser en promedio $|f'(x)| > 1$, el error entre órbitas se amplifica exponencialmente. El Coeficiente de Lyapunov $\lambda = \frac{1}{N} \sum \ln |f'(x_i)|$ es el promedio logarítmico del factor de amplificación de error estudiado en punto fijo.
+    \item \textbf{Estabilidad Numérica y Prevención de Desbordamiento (\textit{Clase 2: Métodos numéricos}):} El producto continuado de miles de derivadas $\prod |f'(x_i)|$ genera desbordamiento numérico (\textit{overflow/underflow}). Se justifica la suma logarítmica para estabilizar el cómputo y la salvaguarda numérica $\varepsilon = 10^{-14}$ para acotar indeterminaciones en puntos donde la derivada se anula ($\ln(0)$).
+    \item \textbf{Valores Singulares y Factores de Deformación (\textit{Clases: Valores singulares}):} La derivada escalar $|f'(x)|$ actúa como el factor de estiramiento local del mapa, y $\lambda$ representa su tasa media geométrica asintótica.
+    \item \textbf{Computación Vectorizada y Rendimiento (\textit{Clase 2}):} Uso de arreglos continuos en NumPy para evaluar barridos paramétricos paralelos de alta resolución.
 \end{itemize}
 
 % =========================================================================
-% SECCIÓN 5: SOLUCIÓN PROPUESTA (RÚBRICA SECCIÓN 5)
+% 5. SOLUCIÓN PROPUESTA
 % =========================================================================
 \section{Solución propuesta}
 
 \subsection{Fundamentación Matemática del Coeficiente de Lyapunov}
-Dada una relación de recurrencia $x_{n+1} = f(x_n)$ sobre un intervalo $I \subset \mathbb{R}$, consideremos dos puntos con una separación infinitesimal inicial $\delta_0$. Tras una iteración, $\delta_1 \approx f'(x_0)\delta_0$. Por inducción y aplicando la regla de la cadena para $N$ pasos sucesivos:
-\begin{equation}
-    |\delta_N| \approx |\delta_0| \prod_{i=0}^{N-1} |f'(x_i)|
-\end{equation}
-
-Para evitar problemas de escala computacional, se toma el logaritmo natural y se normaliza temporalmente:
+Dada la recurrencia $x_{n+1} = f(x_n)$ sobre $I \subset \mathbb{R}$, dos condiciones iniciales con separación $\delta_0$ evolucionan tras $N$ iteraciones por regla de la cadena como $|\delta_N| \approx |\delta_0| \prod_{i=0}^{N-1} |f'(x_i)|$. Tomando el promedio logarítmico:
 \begin{equation}
     \lambda = \lim_{N \to \infty} \frac{1}{N} \sum_{i=0}^{N-1} \ln |f'(x_i)|
-    \label{eq:lyapunov_propuesta}
+    \label{eq:lyapunov_def}
 \end{equation}
+Donde $\lambda < 0$ indica contracción/estabilidad, $\lambda = 0$ frontera de bifurcación y $\boldsymbol{\lambda > 0}$ **régimen caótico** con divergencia exponencial de trayectorias.
 
-El signo del coeficiente $\lambda$ establece el criterio de diagnóstico dinámico:
-\begin{itemize}
-    \item $\boldsymbol{\lambda < 0}$: Régimen contractivo. Las trayectorias colapsan asintóticamente a un punto fijo o ciclo periódico.
-    \item $\boldsymbol{\lambda = 0}$: Régimen neutro o frontera de bifurcación.
-    \item $\boldsymbol{\lambda > 0}$: Régimen caótico. Las trayectorias divergen exponencialmente ($\sim e^{\lambda N}$), manifestando hipersensibilidad a la condición inicial.
-\end{itemize}
+\subsection{Deducción Analítica en el Mapa de Tienda}
+El Mapa de Tienda se define a trozos como:
+\begin{equation}
+    f(x) = \begin{cases} px, & \text{si } x < 0.5 \\ p(1 - x), & \text{si } x \ge 0.5 \end{cases} \implies |f'(x)| = p, \quad \forall x \neq 0.5
+\end{equation}
+Sustituyendo en la definición (\ref{eq:lyapunov_def}):
+\begin{equation}
+    \lambda(p) = \lim_{N \to \infty} \frac{1}{N} \sum_{i=0}^{N-1} \ln(p) = \ln(p)
+    \label{eq:tent_analytic}
+\end{equation}
+Para $\boldsymbol{p = 2.0}$, $\lambda = \ln(2) \approx 0.69314718 > 0$ (caos continuo con densidad uniforme). Para $\boldsymbol{p = 0.8}$, $\lambda = \ln(0.8) \approx -0.22314355 < 0$ (contracción al origen). La función es monótona y carece de ventanas periódicas en $p > 1$.
 
-\subsection{Modelos Unidimensionales y Soluciones Analíticas Exactas}
-Para validar formalmente el algoritmo numérico, se dedujeron tres benchmarks analíticos cerrados:
+\subsection{Criptosistema Caótico 1D (Amin et al., 2010) y Métricas Seleccionadas}
+Sobre una imagen en escala de grises aplanada a vector $P$ de tamaño $L = M \cdot N$:
 \begin{enumerate}
-    \item \textbf{Mapa Logístico ($f(x) = rx(1-x)$) en Punto Fijo ($1 < r \le 3$):} El atractor es $x^* = 1 - 1/r$, arrojando una derivada local $f'(x^*) = 2 - r$. En consecuencia:
-    \begin{equation}
-        \lambda(r) = \ln |2 - r| \implies \lambda(2.8) = \ln(0.8) \approx -0.22314355
-    \end{equation}
-    \item \textbf{Mapa Logístico en Caos Pleno ($r = 4.0$):} Mediante la integral de su densidad invariante $\rho(x) = \frac{1}{\pi\sqrt{x(1-x)}}$, el valor exacto es:
-    \begin{equation}
-        \lambda(4.0) = \int_0^1 \ln|4(1 - 2x)| \, \rho(x) \, dx = \ln(2) \approx 0.69314718
-    \end{equation}
-    \item \textbf{Mapa de Tienda ($f(x) = px$ si $x < 0.5$; $p(1-x)$ si $x \ge 0.5$):} Su derivada en magnitud es constante casi en todo punto: $|f'(x)| = p$ ($\forall x \neq 0.5$). Reemplazando en (\ref{eq:lyapunov_propuesta}):
-    \begin{equation}
-        \lambda(p) = \lim_{N \to \infty} \frac{1}{N} \sum_{i=0}^{N-1} \ln(p) = \ln(p)
-    \end{equation}
-    Para $p = 2.0$, $\lambda = \ln(2) \approx 0.69314718$. Para $p = 0.8$, $\lambda = \ln(0.8) \approx -0.22314355$.
-\end{enumerate}
-
-\subsection{Algoritmo Criptográfico 1D (Amin et al., 2010) y Métricas Seleccionadas}
-El criptosistema propuesto opera sobre una imagen en escala de grises de $M \times N$ píxeles, aplanada al vector $P$ de tamaño $L = M \cdot N$:
-\begin{enumerate}
-    \item \textbf{Generación de Claves Caóticas:} A partir de una semilla secreta $x_0 \in (0, 1)$ y $p=2.0$, el mapa de tienda genera una secuencia continua $X = [x_0, \dots, x_{L-1}]$ y una secuencia de bytes:
-    \begin{equation}
-        S_i = \lfloor |x_i| \cdot 10^{14} \rfloor \pmod{256}, \quad S_i \in \{0, \dots, 255\}
-    \end{equation}
-    \item \textbf{Permutación Espacial (Confusión):} Se calcula $\mathbf{perm} = \operatorname{argsort}(X)$ y se reordenan los píxeles: $P'_i = P[\mathbf{perm}[i]]$.
-    \item \textbf{Difusión XOR Encadenada (Amin et al., 2010):} Cada píxel permutado se difunde encadenadamente mediante:
+    \item \textbf{Keystream:} Con semilla secreta $x_0 \in (0, 1)$ y $p=2.0$, se genera la secuencia continua $X$ y bytes de clave $S_i = \lfloor |x_i| \cdot 10^{14} \rfloor \pmod{256} \in \{0, \dots, 255\}$.
+    \item \textbf{Permutación Espacial:} Se calcula $\mathbf{perm} = \operatorname{argsort}(X)$ y se reordena: $P'_i = P[\mathbf{perm}[i]]$.
+    \item \textbf{Difusión XOR Encadenada:} Cada píxel se difunde mediante:
     \begin{equation}
         C_i = P'_i \oplus S_i \oplus C_{i-1}, \quad \text{con } C_{-1} = \text{IV} = 105
     \end{equation}
-    \item \textbf{Descifrado Exacto sin Pérdidas:} Aprovechando que la operación XOR es su propia inversa:
+    \item \textbf{Descifrado Exacto sin Pérdidas:} Aprovechando que XOR es auto-inversa ($A \oplus B \oplus B = A$):
     \begin{equation}
         P'_i = C_i \oplus S_i \oplus C_{i-1}, \qquad P[\mathbf{perm}[i]] = P'_i
     \end{equation}
 \end{enumerate}
 
-Las métricas cuantitativas seleccionadas para evaluar el criptosistema son exclusivamente:
+Métricas criptográficas exclusivas:
 \begin{itemize}
-    \item \textbf{Fidelidad de Descifrado (MSE):} Mide la desviación cuadrática media entre la imagen original $I$ y la recuperada con clave exacta $I_{\text{dec}}$:
-    \begin{equation}
-        \text{MSE} = \frac{1}{M \cdot N} \sum_{i=1}^M \sum_{j=1}^N \left( I(i, j) - I_{\text{dec}}(i, j) \right)^2
-    \end{equation}
-    Un valor $\text{MSE} = 0.0$ certifica la reconstrucción matemática idéntica e invertible.
-    \item \textbf{NPCR (\textit{Number of Pixels Change Rate}) de Sensibilidad a la Clave:} Evalúa el porcentaje de píxeles que difieren entre el criptograma $C_1$ obtenido con $x_0$ y el criptograma $C_2$ obtenido con $x_0 + \varepsilon$:
-    \begin{equation}
-        \text{NPCR} = \frac{1}{M \cdot N} \sum_{i,j} D(i, j) \times 100\%, \quad D(i, j) = \begin{cases} 1, & C_1(i, j) \neq C_2(i, j) \\ 0, & C_1(i, j) = C_2(i, j) \end{cases}
-    \end{equation}
-    El valor teórico esperado para secuencias pseudoaleatorias de 8 bits es $\mu_{\text{NPCR}} = \frac{255}{256} \approx 99.6094\%$.
-    \item \textbf{UACI (\textit{Unified Average Changing Intensity}) de Sensibilidad a la Clave:} Mide la intensidad promedio de cambio absoluto normalizado entre $C_1$ y $C_2$:
-    \begin{equation}
-        \text{UACI} = \frac{1}{255 \cdot M \cdot N} \sum_{i,j} |C_1(i, j) - C_2(i, j)| \times 100\%
-    \end{equation}
-    El valor teórico esperado para dos imágenes cifradas uniformemente distribuidas es $\mu_{\text{UACI}} = \frac{257}{768} \approx 33.4635\%$.
+    \item \textbf{Fidelidad de Descifrado (MSE):} $\text{MSE} = \frac{1}{M \cdot N} \sum_{i,j} (I(i, j) - I_{\text{dec}}(i, j))^2$. Un valor $\text{MSE} = 0.0$ certifica recuperación exacta sin pérdidas.
+    \item \textbf{NPCR de Sensibilidad a Clave:} Porcentaje de píxeles diferentes entre criptogramas $C_1(x_0)$ y $C_2(x_0 + 10^{-14})$: $\text{NPCR} = \frac{1}{M \cdot N} \sum D(i, j) \times 100\%$ ($D=1$ si $C_1 \neq C_2$). Cota ideal de Wu et al. (2011): $\mu_{\text{NPCR}} = \frac{255}{256} \approx 99.6094\%$.
+    \item \textbf{UACI de Sensibilidad a Clave:} Cambio de intensidad media normalizada: $\text{UACI} = \frac{1}{255 \cdot M \cdot N} \sum |C_1(i, j) - C_2(i, j)| \times 100\%$. Cota ideal de Wu et al. (2011): $\mu_{\text{UACI}} = \frac{257}{768} \approx 33.4635\%$.
 \end{itemize}
 
 % =========================================================================
-% SECCIÓN 6: IMPLEMENTACIÓN Y EXPERIMENTOS (RÚBRICA SECCIÓN 6)
+% 6. IMPLEMENTACIÓN Y EXPERIMENTOS
 % =========================================================================
 \section{Implementación y experimentos}
 
-\subsection{Estrategia Computacional y Referencia al Repositorio}
-La implementación completa de la solución se estructuró de forma modular en Python 3.13 y se encuentra disponible públicamente en el repositorio oficial de GitHub del proyecto:
+\subsection{Estrategia Computacional y Repositorio}
+La implementación en Python 3.13 con NumPy y Pillow está disponible en el repositorio de GitHub:
 \begin{center}
     \textbf{Repositorio:} \url{https://github.com/migueangel1228/Proyecto-Computaci-n-Cientifica}
 \end{center}
 
-Los componentes principales del software en dicho repositorio son:
+Estructura modular:
 \begin{itemize}
-    \item \texttt{src/maps.py}: Clases modulares \texttt{LogisticMap} y \texttt{TentMap}, implementando la evaluación de órbitas y el cálculo de sus derivadas analíticas de primer orden.
-    \item \texttt{src/lyapunov.py}: Algoritmo computacional para el cálculo de $\lambda$, incorporando las soluciones analíticas teóricas y barridos vectorizados sobre arreglos de NumPy.
-    \item \texttt{src/cipher.py}: Criptosistema 1D de Amin et al. (2010), conteniendo las funciones de generación de claves pseudoaleatorias, permutación espacial, difusión XOR encadenada, descifrado y cálculo de NPCR/UACI.
-    \item \texttt{src/visualizer.py}: Rutinas de graficación científica estandarizadas a 300 DPI.
-    \item \texttt{run\_experiments.py}: Script maestro reproducible que ejecuta la totalidad de benchmarks y genera las figuras.
-    \item \texttt{tests/test\_lyapunov.py}: Suite automatizada de 10 pruebas unitarias para verificación continua.
+    \item \texttt{src/maps.py}: Clases modulares \texttt{TentMap} y \texttt{LogisticMap} con evaluación de trayectorias y derivadas.
+    \item \texttt{src/lyapunov.py}: Algoritmo de estimación de $\lambda$, soluciones analíticas y barridos vectorizados.
+    \item \texttt{src/cipher.py}: Criptosistema 1D de Amin et al. (2010), carga/guardado de imágenes (PNG, JPG, BMP), permutación, difusión XOR encadenada, descifrado y métricas NPCR/UACI.
+    \item \texttt{src/visualizer.py}: Generador de las graficas.
+    \item \texttt{run\_experiments.py}: Codigo main con interfaz CLI (\texttt{--image}, \texttt{--output-dir}) para ejecución de benchmarks, figuras y exportación de imágenes.
+    \item \texttt{tests/test\_lyapunov.py}: Pruebas unitarias que validan la solución $\lambda = \ln 2$, el colapso de Li-Yorke, fidelidad $\text{MSE}=0.0$ y sensibilidad a la clave ($10^{-14}$).
 \end{itemize}
 
-El algoritmo numérico incorpora tres salvaguardas computacionales indispensables:
-\begin{enumerate}
-    \item \textbf{Descarte de Transitorios ($N_{\text{trans}} = 500$):} Permite que la trayectoria alcance el atractor asintótico y elimine el sesgo de la condición inicial.
-    \item \textbf{Salvaguarda Numérica contra $\ln(0)$ ($\varepsilon = 10^{-14}$):} Cota inferior que evita indeterminaciones a $-\infty$ cuando la derivada se acerca a cero en puntos críticos.
-    \item \textbf{Suma Logarítmica Estable:} Sustituye productos por sumas $\sum \ln|f'(x_i)|$, evitando desbordamientos de escala (*overflow/underflow*).
-\end{enumerate}
+Salvaguardas numéricas implementadas: (1) descarte de $N_{\text{trans}} = 500$ pasos iniciales para converger al atractor; (2) salvaguarda $\varepsilon = 10^{-14}$ para acotar singularidades; (3) suma logarítmica estable para evitar desbordamientos.
 
-\subsection{Parámetros Experimentales y Casos de Prueba}
-Se configuraron dos bloques experimentales integrados en \texttt{run\_experiments.py}:
+\subsection{Parámetros Experimentales}
 \begin{itemize}
-    \item \textbf{Experimento de Lyapunov:} Barrido de 1000 valores de $r \in [2.5, 4.0]$ para el mapa logístico y 500 valores de $p \in [0.05, 2.0]$ para el mapa de tienda, promediando $N = 1500$ iteraciones por punto tras descartar $N_{\text{trans}} = 400$.
-    \item \textbf{Experimento Criptográfico:} Imagen sintética reproducible de $128 \times 128$ píxeles con gradientes continuos, anillos concéntricos y bloques geométricos; clave nominal secreta $x_0 = 0.38472910542381$, $p = 2.0$, $\text{IV} = 105$. Se ejecutó la prueba de \textbf{Fidelidad de Descifrado} evaluando el MSE con la clave exacta, y la prueba de \textbf{Sensibilidad a la Clave} perturbando la clave en un micro-épsilon $\varepsilon = 10^{-14}$ ($x_0 + 10^{-14}$), calculando la tasa de fallo de descifrado, el NPCR y el UACI.
+    \item \textbf{Lyapunov en Mapa de Tienda:} Barrido de 500 valores de $p \in [0.05, 2.0]$ ($N = 1200$ iteraciones, $N_{\text{trans}} = 200$). Validación en $p=2.0$ y $p=0.8$ con $N = 10000$ iteraciones.
+    \item \textbf{Cifrado en Imagen Digital:} Imagen estándar de $256 \times 256$ píxeles (\textit{Lena}), clave $x_0 = 0.38472910542381$, $p = 2.0$, $\text{IV} = 105$. Se evaluó fidelidad (MSE) con clave exacta, y sensibilidad con perturbación $\Delta x_0 = 10^{-14}$, computando fallo de clave, NPCR y UACI.
 \end{itemize}
 
 % =========================================================================
-% SECCIÓN 7: DISCUSIÓN DE LOS RESULTADOS OBTENIDOS (RÚBRICA SECCIÓN 7)
+% 7. DISCUSIÓN DE LOS RESULTADOS OBTENIDOS
 % =========================================================================
 \section{Discusión de los resultados obtenidos}
 
-\subsection{Validación Numérica frente a Benchmarks Teóricos}
-La Tabla \ref{tab:benchmarks_lyap} presenta la validación cuantitativa del Coeficiente de Lyapunov calculada por \texttt{run\_experiments.py}:
+\subsection{Validación Numérica del Coeficiente de Lyapunov (Mapa de Tienda)}
+La Tabla \ref{tab:benchmarks_tent} presenta la validación cuantitativa del Coeficiente de Lyapunov en el Mapa de Tienda calculada por \texttt{run\_experiments.py}:
 
 \begin{table}[H]
 \centering
-\caption{Comparación entre soluciones analíticas exactas y resultados numéricos computacionales.}
-\label{tab:benchmarks_lyap}
+\caption{Validación cuantitativa del Coeficiente de Lyapunov en el Mapa de Tienda.}
+\label{tab:benchmarks_tent}
 \small
 \begin{tabularx}{\textwidth}{lccccc}
 \toprule
-\textbf{Modelo} & \textbf{Parámetro} & \textbf{Régimen Dinámico} & $\boldsymbol{\lambda}$ \textbf{Analítico} & $\boldsymbol{\lambda}$ \textbf{Numérico} & \textbf{Error Absoluto} \\
+\textbf{Parámetro} & \textbf{Régimen Dinámico} & $\boldsymbol{\lambda}$ \textbf{Analítico} & $\boldsymbol{\lambda}$ \textbf{Numérico} & \textbf{Error Absoluto} & \textbf{Diagnóstico} \\
 \midrule
-Mapa Logístico & $r = 4.0$ & Caos Pleno & $\ln(2) \approx 0.69314718$ & $0.69308157$ & $6.56 \times 10^{-5}$ \\
-Mapa Logístico & $r = 2.8$ & Punto Fijo Estable & $\ln(0.8) \approx -0.22314355$ & $-0.22314355$ & $2.03 \times 10^{-14}$ \\
-Mapa Logístico & $r = 3.83$ & Ventana Período 3 & $< 0$ (Periódico) & $-0.36953991$ & Coherente ($\lambda < 0$) \\
-Mapa de Tienda & $p = 2.0$ & Caos Uniforme & $\ln(2) \approx 0.69314718$ & $0.69314718$ & $1.09 \times 10^{-13}$ \\
-Mapa de Tienda & $p = 0.8$ & Contracción al Origen & $\ln(0.8) \approx -0.22314355$ & $-0.22314355$ & $2.06 \times 10^{-14}$ \\
+$p = 2.0$ & Caos Uniforme Pleno & $\ln(2) \approx 0.69314718$ & $0.69314718$ & $1.09 \times 10^{-13}$ & Divergencia exponencial continua \\
+$p = 0.8$ & Contracción al Origen & $\ln(0.8) \approx -0.22314355$ & $-0.22314355$ & $2.06 \times 10^{-14}$ & Contracción asintótica estable \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Los resultados confirman que en puntos fijos y en el mapa de tienda el error se sitúa en el límite de la precisión numérica ($10^{-14}$). En el mapa logístico con $r=4$, el error de $6.56 \times 10^{-5}$ responde a que la trayectoria visita frecuentemente las proximidades de $x=0.5$ (donde $f'(x) \to 0$ y $\ln|f'(x)| \to -\infty$), demandando mayor número de pasos temporales para converger a la media ergódica.
-
-\subsection{Análisis de Barridos Paramétricos de Lyapunov}
-Las Figuras \ref{fig:log_barrido} y \ref{fig:tent_barrido} muestran los barridos individuales, y la Figura \ref{fig:comp_barrido} exhibe su comparación directa:
+El error absoluto de orden $10^{-13}$ confirma la exactitud de la solución analítica cerrada deducida en (\ref{eq:tent_analytic}). La Figura \ref{fig:tent_lyapunov} exhibe el barrido paramétrico continuo de $\lambda(p)$ en función de $p$:
 
 \begin{figure}[H]
     \centering
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{logistic_lyapunov.png}
-        \caption{Barrido de Lyapunov: Mapa Logístico.}
-        \label{fig:log_barrido}
-    \end{minipage}\hfill
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{tent_lyapunov.png}
-        \caption{Barrido de Lyapunov: Mapa de Tienda.}
-        \label{fig:tent_barrido}
-    \end{minipage}
+    \includegraphics[width=0.72\textwidth]{tent_lyapunov.png}
+    \caption{Barrido paramétrico del Coeficiente de Lyapunov del Mapa de Tienda $\lambda(p) = \ln(p)$.}
+    \label{fig:tent_lyapunov}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.72\textwidth]{lyapunov_comparison_logistic_vs_tent.png}
-    \caption{Comparación directa del Coeficiente de Lyapunov: Mapa Logístico vs. Mapa de Tienda.}
-    \label{fig:comp_barrido}
-\end{figure}
+La curva analítica y los puntos numéricos coinciden exactamente. La monotonía de $\lambda(p) = \ln(p)$ evidencia por qué el Mapa de Tienda es superior: mientras que en el mapa logístico el caos colapsa súbitamente a órbitas periódicas ($\lambda < 0$ en $r \approx 3.83$, Teorema de Li y Yorke, 1975 \cite{li1975}), el Mapa de Tienda carece de ventanas periódicas en $p > 1$, manteniendo caos continuo con $\lambda = \ln(2)$ en $p=2.0$.
 
-La comparación evidencia con claridad por qué el Mapa de Tienda es superior para aplicaciones criptográficas: mientras que el Mapa Logístico presenta caídas súbitas en medio del caos (notablemente en $r \approx 3.83$, la ventana de período 3 de Li-Yorke \cite{li1975}), el Mapa de Tienda exhibe un crecimiento monótono continuo gobernado por $\lambda = \ln(p)$, garantizando caos ininterrumpido para todo $p > 1$.
-
-\subsection{Resultados del Cifrado Caótico y Métricas Criptográficas}
-La demostración experimental del criptosistema de Amin et al. (2010) se presenta en la Figura \ref{fig:cifrado_demo}, ilustrando de forma secuencial la función del mapa de tienda generador, la imagen original, la imagen cifrada, la reconstrucción exacta y la imposibilidad de recuperar la información ante una perturbación infinitesimal de clave:
+\subsection{Resultados del Cifrado Caótico y Reversibilidad}
+La demostración del criptosistema de Amin et al. (2010) aplicado a la imagen de prueba se presenta en la Figura \ref{fig:cifrado_demo}:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.96\textwidth]{encryption_results.png}
-    \caption{Demostración del Cifrado Caótico 1D (Amin et al., 2010): (a) Función del mapa con $\lambda \approx 0.6931$; (b) Imagen original; (c) Imagen cifrada; (d) Descifrado exacto con clave $x_0$; (e) Descifrado fallido al variar la clave en $\varepsilon = 10^{-14}$.}
+    \includegraphics[width=0.88\textwidth]{encryption_results.png}
+    \caption{Cifrado 1D (Amin et al., 2010): (a) Mapa generador; (b) Imagen original; (c) Cifrada; (d) Descifrado exacto ($\text{MSE} = 0.0$); (e) Descifrado fallido ($x_0 + 10^{-14}$).}
     \label{fig:cifrado_demo}
 \end{figure}
 
-La Tabla \ref{tab:crypto_metricas} resume los resultados obtenidos para las métricas criptográficas seleccionadas:
+El panel (c) muestra cómo la combinación de permutación y difusión XOR encadenada transforma la imagen en ruido blanco homogéneo. El panel (d) certifica la reconstrucción idéntica sin distorsión.
+
+\subsection{Métricas Criptográficas y Sensibilidad a la Clave}
+La Tabla \ref{tab:crypto_metricas} resume los resultados obtenidos para las métricas de seguridad evaluadas:
 
 \begin{table}[H]
 \centering
-\caption{Métricas criptográficas y de Sensibilidad a la Clave obtenidas.}
+\caption{Métricas criptográficas de Fidelidad y Sensibilidad a la Clave.}
 \label{tab:crypto_metricas}
 \small
 \begin{tabularx}{\textwidth}{lccX}
 \toprule
-\textbf{Prueba Realizada} & \textbf{Valor Numérico} & \textbf{Valor Teórico} & \textbf{Interpretación Dinámica y de Seguridad} \\
+\textbf{Métrica de Evaluación} & \textbf{Valor Experimental} & \textbf{Cota Teórica Ideal \cite{wu2011}} & \textbf{Interpretación Dinámica y de Seguridad} \\
 \midrule
-Fidelidad de Descifrado & $\text{MSE} = 0.0$ & $0.0$ & Reconstrucción matemática idéntica e invertible sin pérdidas. \\
-NPCR (Sensibilidad a Clave $x_0 + 10^{-14}$) & $99.57\%$ & $> 99.5\%$ & Dispersión global de píxeles modificados en el criptograma. \\
-UACI (Sensibilidad a Clave $x_0 + 10^{-14}$) & $33.29\%$ & $\approx 33.4\%$ & Coincidencia con la distribución de cambio uniforme ideal. \\
+Fidelidad de Descifrado (MSE) & $\text{MSE} = 0.000000$ & $0.0$ & Reconstrucción matemática idéntica e invertible sin pérdidas. \\
+NPCR (Sensibilidad a Clave $10^{-14}$) & $99.6414\%$ & $99.6094\%$ & Dispersión global: el 99.64\% de los píxeles cambia de valor. \\
+UACI (Sensibilidad a Clave $10^{-14}$) & $33.4572\%$ & $33.4635\%$ & Concordancia estricta con la media de ruido uniforme ideal. \\
+Tasa de Fallo con Clave Errónea & $99.4827\%$ & $\approx 100.0\%$ & Imposibilidad de recuperar la imagen ante error de $10^{-14}$. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Al intentar descifrar la imagen con una clave que difiere únicamente en $10^{-14}$, el $99.66\%$ de los píxeles recuperados difiere de la imagen original, resultando en ruido caótico ininteligible. Esto confirma la extrema dependencia a las condiciones iniciales del Mapa de Tienda en régimen $\lambda = \ln(2) \approx 0.6931$.
+\subsection{Análisis Visual de Sensibilidad y Efecto Avalancha}
+La Figura \ref{fig:sensibilidad_comp} examina visualmente el efecto avalancha al alterar la clave en un micro-valor $\Delta x_0 = 10^{-14}$:
 
-\subsection{Dificultades Encontradas y Limitaciones del Trabajo}
-\begin{itemize}
-    \item \textbf{Fluctuación de Derivadas en Puntos Críticos:} En el mapa logístico, la presencia del punto crítico en $x=0.5$ ($f'(x) = 0$) genera oscilaciones locales que ralentizan la convergencia numérica de $\lambda$, exigiendo $N \ge 15000$ iteraciones para estabilizar tres cifras decimales con error de $10^{-5}$.
-    \item \textbf{Alcance de la Primera Entrega:} El enfoque se concentró deliberadamente en la validación del Coeficiente de Lyapunov y en la verificación de la Sensibilidad a la Clave (NPCR y UACI) y Fidelidad de Descifrado del modelo 1D de Amin et al. (2010), dejando para la Segunda Entrega la síntesis visual del póster científico final.
-\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{sensitivity_analysis.png}
+    \caption{Comparativa de Sensibilidad a la Clave y Efecto Avalancha: (a) Original; (b) Cifrada $C_1(x_0)$; (c) Cifrada $C_2(x_0 + 10^{-14})$; (d) Diferencia absoluta $|C_1 - C_2|$; (e) Descifrado con clave incorrecta.}
+    \label{fig:sensibilidad_comp}
+\end{figure}
+
+Al alterar la clave en apenas $10^{-14}$, la trayectoria caótica diverge exponencialmente ($\lambda \approx 0.6931$). Esta separación reordena los índices de permutación y produce un keystream de difusión incorrelacionado. La imagen de diferencia $|C_1 - C_2|$ (panel d) es ruido blanco puro con intensidad media de 85.3 niveles de gris sobre 255 ($\text{UACI} = 33.46\%$, $\text{NPCR} = 99.64\%$), demostrando visualmente que agregar una variación infinitesimal cambia por completo la imagen cifrada resultante.
+
+\subsection{Dificultades y Limitaciones}
+En el cifrado 1D de una pasada de Amin et al. (2010), la difusión XOR se propaga de forma secuencial hacia adelante. Aunque la sensibilidad a la clave es global e instantánea ($\text{NPCR} > 99.6\%$), un cambio en un píxel del texto claro difunde únicamente desde su posición hacia adelante. Para aplicaciones que requieran difusión bidireccional completa ante cambios diferenciales de un solo píxel, la literatura recomienda incorporar dos rondas de difusión encadenada (ida y vuelta).
 
 % =========================================================================
-% SECCIÓN 8: CONCLUSIONES (RÚBRICA SECCIÓN 8)
+% 8. CONCLUSIONES
 % =========================================================================
 \section{Conclusiones}
 \begin{itemize}
-    \item Se formuló, implementó y validó exitosamente un marco computacional en Python para diagnosticar el caos determinista en mapas unidimensionales mediante el Coeficiente de Lyapunov ($\lambda$), logrando una concordancia analítica rigurosa con errores absolutos del orden de $10^{-14}$ en zonas estables y $10^{-5}$ en caos ergódico.
-    \item Se demostró la correspondencia directa del proyecto con los temas de Computación Científica: el Coeficiente de Lyapunov traduce a sistemas caóticos la teoría de amplificación de error del método de punto fijo ($e_{n+1} \approx g'(\xi_n)e_n$), aprovechando que $|f'(x)| > 1$ en promedio.
-    \item El análisis comparativo de barridos paramétricos comprobó cuantitativamente que el Mapa de Tienda ($\lambda = \ln(p)$) es superior al Mapa Logístico para aplicaciones prácticas y criptográficas, al carecer de ventanas periódicas espurias.
-    \item Se implementó de forma completa el criptosistema simétrico de Amin et al. (2010), demostrando una \textbf{Fidelidad de Descifrado} perfecta ($\text{MSE} = 0.0$) y una extrema \textbf{Sensibilidad a la Clave} ante perturbaciones de orden $10^{-14}$ ($\text{NPCR} = 99.57\%$, $\text{UACI} = 33.29\%$), cumpliendo estrictamente con los objetivos propuestos para la Primera Entrega.
+    \item Se diseñó, implementó y validó un marco computacional en Python para diagnosticar el caos en el Mapa de Tienda mediante el Coeficiente de Lyapunov, alcanzando una concordancia analítica cerrada ($\lambda = \ln p$) con error absoluto de $10^{-13}$ en régimen caótico ($p=2.0$).
+    \item Se fundamentó la pertinencia con los temas del curso: Lyapunov actúa como la tasa media logarítmica del factor de amplificación de error de la teoría de punto fijo ($e_{n+1} \approx g'(\xi)e_n$), aprovechando que $|f'| > 1$ en caos.
+    \item Se justificó la adopción del Mapa de Tienda frente al Logístico: su derivada constante elimina la presencia de ventanas de periodicidad estables (Li \& Yorke, 1975) y garantiza distribución uniforme $U(0, 1)$.
+    \item Se implementó el criptosistema de Amin et al. (2010) para imágenes digitales arbitrarias, alcanzando Fidelidad de Descifrado perfecta ($\text{MSE} = 0.000000$) y Sensibilidad a la Clave extrema ante perturbaciones de $10^{-14}$ ($\text{NPCR} = 99.6414\%$ y $\text{UACI} = 33.4572\%$), cumpliendo con las cotas teóricas ideales de Wu, Noonan y Agaian (2011).
 \end{itemize}
-
-\subsection*{Pasos Siguientes para el Desarrollo del Proyecto (Segunda Entrega / Póster)}
-\begin{enumerate}
-    \item \textbf{Diseño Pedagógico del Póster Científico:} Sintetizar visualmente la motivación, la analogía intuitiva del factor de estiramiento local, los barridos comparativos de Lyapunov y la demostración secuencial del cifrado para divulgación general.
-    \item \textbf{Evaluación Criptográfica Extendida:} Analizar la resistencia del criptosistema bajo diferentes condiciones de ruido y evaluar esquemas de rondas múltiples para aplicaciones en imágenes de alta resolución.
-\end{enumerate}
-
 % =========================================================================
-% REFERENCIAS BIBLIOGRÁFICAS (AL FINAL DEL DOCUMENTO - PÁGINA INDEPENDIENTE)
+% REFERENCIAS BIBLIOGRÁFICAS (PÁGINA INDEPENDIENTE FUERA DEL LÍMITE)
 % =========================================================================
 \newpage
 \begin{thebibliography}{99}
 \bibitem{zhang2023}
 B.~Zhang y L.~Liu, ``Chaos-based image encryption: review, application, and challenges,'' \textit{Mathematics}, vol.~11, no.~11, p.~2585, 2023.
 
-\bibitem{li1975} 
-T.-Y.~Li y J.~A.~Yorke, ``Period three implies chaos,'' \textit{The American Mathematical Monthly}, vol.~82, no.~10, pp.~985--992, 1975.
+\bibitem{amin2010}
+M.~Amin, O.~S.~Faragallah y A.~A.~Abd El-Latif, ``A chaotic block cipher algorithm for image cryptosystems,'' \textit{Communications in Nonlinear Science and Numerical Simulation}, vol.~15, no.~11, pp.~3484--3497, 2010.
+
+\bibitem{wu2011}
+Y.~Wu, J.~P.~Noonan y S.~Agaian, ``NPCR and UACI randomness tests for image encryption,'' \textit{Cyber Journals: Multidisciplinary Journals in Science and Technology, Journal of Selected Areas in Telecommunications (JSAT)}, vol.~1, no.~2, pp.~31--38, 2011.
 
 \bibitem{may1976} 
 R.~M.~May, ``Simple mathematical models with very complicated dynamics,'' \textit{Nature}, vol.~261, no.~5560, pp.~459--467, 1976.
 
-\bibitem{amin2010}
-M.~Amin, O.~S.~Faragallah y A.~A.~Abd El-Latif, ``A chaotic block cipher algorithm for image cryptosystems,'' \textit{Communications in Nonlinear Science and Numerical Simulation}, vol.~15, no.~11, pp.~3484--3497, 2010.
+\bibitem{li1975} 
+T.-Y.~Li y J.~A.~Yorke, ``Period three implies chaos,'' \textit{The American Mathematical Monthly}, vol.~82, no.~10, pp.~985--992, 1975.
 \end{thebibliography}
 
 % =========================================================================
-% DECLARACIÓN DE USO DE INTELIGENCIA ARTIFICIAL (SECCIÓN INDEPENDIENTE)
+% DECLARACIÓN DE USO DE INTELIGENCIA ARTIFICIAL (PÁGINA INDEPENDIENTE)
 % =========================================================================
 \newpage
 \section*{Declaración de Trabajo Individual y Uso de Inteligencia Artificial}
-\textit{Sección obligatoria independiente fuera del límite de páginas y separada de las referencias, en cumplimiento del numeral 2.3 de la Rúbrica de Evaluación.}
 
 \subsection*{1. Herramientas y Propósitos}
 \begin{itemize}
     \item \textbf{Herramientas utilizadas:} Asistente de inteligencia artificial basado en modelos avanzados de lenguaje (Antigravity AI / LLM).
-    \item \textbf{Propósitos específicos:} Asistencia en la vectorización eficiente de algoritmos con NumPy, formateo tipográfico en \LaTeX, alineación estricta de la estructura del informe con las 8 secciones de la rúbrica y verificación de trazabilidad bibliográfica en el artículo general de Zhang y Liu (2023).
+    \item \textbf{Propósitos específicos:} Asistencia en la optimización vectorizada de algoritmos con NumPy, formateo tipográfico en \LaTeX, alineación estricta con las 8 secciones de la rúbrica y verificación de trazabilidad bibliográfica en los documentos fuente (Zhang \& Liu, 2023; Amin et al., 2010; Wu et al., 2011).
 \end{itemize}
 
 \subsection*{2. Registro de Prompts Relevantes Empleados}
 \begin{enumerate}
     \item \textit{«Revisa el proyecto, ten en cuenta que se busca hacer el proyecto según la rúbrica del pdf adjunto, además haz planes de los posibles pasos siguientes, teniendo en cuenta la primera entrega.»}
     \item \textit{«El trabajo a realizar que solo sea de los mapas y Lyapunov, simplifica y deja un trabajo claro de los códigos que sí se van a dejar.»}
-    \item \textit{«Los informes, hazlos en LaTeX.»}
-    \item \textit{«Verifica que todas las citas y referencias existan, además de verificar que hayan salido del documento general Chaos-Based\_Image\_Encryption\_Review.pdf.»}
-    \item \textit{«Ajusta las métricas de cifrado: las únicas métricas que voy a utilizar son NPCR y UACI (Sensibilidad a Clave) y Fidelidad de Descifrado. Las demás no, y tampoco quiero utilizar el histograma de densidad. Además como máximo son 8 páginas sin incluir portada, referencias ni IA, no agregues nada de código y deja el link del repositorio de GitHub.»}
+    \item \textit{«Las únicas métricas que voy a utilizar son NPCR y UACI (Sensibilidad a Clave) y Fidelidad de Descifrado. Las demás no, y tampoco quiero utilizar el histograma de densidad. Además como máximo son 8 páginas sin incluir portada, referencias ni IA, no agregues nada de código y deja el link del repositorio de GitHub.»}
+    \item \textit{«Enfócanos solo en lo importante, no vamos a meternos con el cálculo y análisis a profundidad del modelo logístico, máximo se nombra como comentario mencionando que no es tan útil por las ventanas estables referenciando a artículos. La discusión será únicamente sobre el Lyapunov de la tienda y sobre todo la encriptación de una imagen con modelo de tienda y XOR, métricas NPCR, UACI y MSE, y ver una gráfica de comparativa de sensibilidad donde agregar un número muy pequeño cambia toda la imagen resultado. Además que el código permita recibir cualquier imagen para cifrar y descifrar guardándola en una carpeta.»}
 \end{enumerate}
 
 \subsection*{3. Uso de la Información Generada}
 \begin{itemize}
-    \item \textbf{Aceptado:} La estructura de clases en Python (\texttt{LogisticMap}, \texttt{TentMap}), la rutina vectorizada para barridos paramétricos del coeficiente de Lyapunov, el módulo de cifrado \texttt{src/cipher.py} enfocado exclusivamente en Fidelidad de Descifrado y Sensibilidad a la Clave (NPCR/UACI), y la plantilla \LaTeX\ con las 8 secciones canónicas dentro del límite de páginas.
-    \item \textbf{Modificado:} Se ajustó la justificación del Coeficiente de Lyapunov frente a los otros indicadores de Zhang & Liu (2023), contextualizando la relación matemática directa con los métodos de punto fijo de clase.
-    \item \textbf{Descartado:} Se descartaron bloques de código fuente dentro del texto del informe, gráficos de histogramas de densidad, métricas de correlación espacial y menciones no pertinentes a la formulación matemática del curso.
+    \item \textbf{Aceptado:} La arquitectura modular de software (\texttt{src/maps.py}, \texttt{src/lyapunov.py}, \texttt{src/cipher.py}), la canalización para procesar imágenes arbitrarias y exportar a \texttt{outputs/}, el enfoque exclusivo en el Mapa de Tienda y las métricas de fidelidad ($\text{MSE}=0.0$) y sensibilidad a la clave (NPCR/UACI según Wu et al., 2011), y la estructura \LaTeX\ ajustada estrictamente a un máximo de 5 a 6 páginas de cuerpo.
+    \item \textbf{Modificado:} Se concentró la discusión de resultados exclusivamente en el Mapa de Tienda y el cifrado de imágenes, reduciendo el modelo logístico a un antecedente cualitativo justificado en las ventanas periódicas de Li y Yorke (1975).
+    \item \textbf{Descartado:} Se descartaron listings de código dentro del informe, histogramas de densidad, tablas comparativas superfluas, y menciones a términos computacionales no pertinentes.
 \end{itemize}
 
 \subsection*{4. Validación de la Información}
 \begin{itemize}
-    \item \textbf{Validación Matemática:} Cada expresión analítica ($\lambda(p) = \ln(p)$, $\lambda(r) = \ln|2-r|$ y $\lambda(4) = \ln(2)$) fue verificada a mano y contrastada con la literatura formal.
-    \item \textbf{Validación Bibliográfica:} Se verificó en bases de datos científicas internacionales la existencia formal y trazabilidad de las 4 fuentes centrales empleadas.
-    \item \textbf{Validación Computacional:} Se ejecutó una suite automatizada de 10 pruebas unitarias (\texttt{tests/test\_lyapunov.py}) aprobada al 100\%, asegurando que el código converja a las cotas teóricas con tolerancias de precisión analítica.
+    \item \textbf{Validación Matemática:} Se verificó a mano la solución analítica $\lambda(p) = \ln(p)$ y su valor en $p=2.0$ ($\ln 2$), contrastándola con el algoritmo numérico.
+    \item \textbf{Validación Bibliográfica:} Se verificó en los documentos fuente de la carpeta \texttt{docs/Referencias/} la existencia y pertinencia de Zhang \& Liu (2023), Amin et al. (2010) y Wu et al. (2011).
+    \item \textbf{Validación Computacional:} Se ejecutó la suite de pruebas unitarias (\texttt{tests/test\_lyapunov.py}) aprobada al 100\%, asegurando que el código alcance la tolerancia de error de $10^{-13}$ frente a la solución analítica y cumpla con $\text{MSE}=0.0$.
 \end{itemize}
 
-\subsection*{5. Declaración de Trabajo Individual de los Integrantes}
-\begin{itemize}
-    \item \textbf{Integrante 1:} Revisión bibliográfica en el documento matriz de Zhang y Liu (2023), deducción analítica de puntos fijos y exponentes exactos de Lyapunov, y redacción de las secciones de fundamentación teórica, resumen y discusión de la literatura.
-    \item \textbf{Integrante 2:} Implementación del código modular en Python (\texttt{src/maps.py}, \texttt{src/lyapunov.py}, \texttt{src/cipher.py}), vinculación con los temas de punto fijo y estabilidad numérica de clase, y desarrollo de la suite de pruebas unitarias.
-    \item \textbf{Integrante 3:} Experimentación numérica, configuración de barridos de parámetros, renderizado de figuras científicas comparativas y composición del documento final en \LaTeX\ garantizando el cumplimiento estricto del límite de páginas y las 8 secciones de la rúbrica.
-\end{itemize}
+\subsection*{5. Declaración de Trabajo Individual del Autor}
+El presente trabajo fue desarrollado en su totalidad de manera individual por \textbf{Miguel Ángel Padilla Rosero}, asumiendo la autoría y ejecución integral de cada una de las fases del proyecto.
 
 \end{document}
